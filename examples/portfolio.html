@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio example · Narleaf Reveal</title>
+  <meta name="description" content="A designer portfolio in a dark theme, built with Narleaf Layout and Narleaf Reveal: big clip headline, alternating case studies, centre-triggered sections and a contact form." />
+  <meta name="theme-color" content="#0e0e10" />
+  <link rel="stylesheet" href="../narleaf-layout.css" />
+  <link rel="stylesheet" href="../narleaf-reveal.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <script src="shared.js"></script>
+  <script src="../narleaf-reveal.js" defer></script>
+  <style>
+    :root { --accent: #d4ff3f; --accent-ink: #0e0e10; }
+
+    .hero { padding-block: clamp(3rem, 8vw, 6.5rem) clamp(3rem, 7vw, 5rem); align-items: end; }
+    .status { display: inline-flex; align-items: center; gap: .6rem; margin-bottom: 1.6rem; }
+    .hero h1 { font-size: clamp(3.2rem, 10.5vw, 8.5rem); line-height: .95; letter-spacing: -.055em; }
+    .hero .lead { margin-top: 2rem; }
+    .hero .cta { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
+    .portrait { --ar: 3 / 4; --ph-radius: 28px; --ph-icon: 3rem; }
+
+    .facts { display: grid; gap: .2rem; }
+    .facts dt { color: var(--faint); font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; margin-top: 1rem; }
+    .facts dd { font-weight: 600; }
+
+    /* case studies */
+    .project + .project { margin-top: clamp(3.5rem, 8vw, 6rem); }
+    .project { align-items: center; }
+    @media (min-width: 1024px) { .project:nth-of-type(even) .project__media { order: 2; } }
+    .project__media { display: block; text-decoration: none; }
+    .project__media .ph { --ar: 16 / 11; --ph-radius: 24px; --ph-icon: 3.2rem; transition: border-color .2s, transform .3s; }
+    .project__media:hover .ph { border-color: var(--accent); transform: scale(.992); }
+    .project__arrow { position: absolute; right: 1rem; bottom: 1rem; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); transition: transform .2s; }
+    .project__media:hover .project__arrow { transform: rotate(45deg); }
+    .project__meta { display: flex; gap: .8rem; color: var(--faint); font-size: .88rem; margin-bottom: .8rem; font-variant-numeric: tabular-nums; }
+    .project h3 { font-size: clamp(1.8rem, 3.6vw, 2.8rem); line-height: 1.05; letter-spacing: -.04em; font-weight: 740; }
+    .project p { color: var(--muted); margin-top: 1rem; max-width: 30rem; }
+    .project .chips { display: flex; flex-wrap: wrap; gap: .45rem; list-style: none; padding: 0; margin: 1.3rem 0 0; }
+    .project .more { display: inline-flex; align-items: center; gap: .5rem; margin-top: 1.5rem; font-weight: 620; color: var(--accent); text-decoration: none; }
+    .project .more:hover { text-decoration: underline; text-underline-offset: 5px; }
+
+    .service { display: grid; gap: 1.2rem; align-content: space-between; min-height: 230px; height: 100%; }
+    .service__n { color: var(--faint); font-variant-numeric: tabular-nums; font-size: .9rem; }
+    .service p { color: var(--muted); margin-top: .4rem; font-size: .96rem; }
+
+    .process { counter-reset: p; list-style: none; padding: 0; margin: 0; }
+    .process li { counter-increment: p; border-top: 1px solid var(--line); padding-top: 1.2rem; }
+    .process li::before { content: "0" counter(p); display: block; color: var(--accent); font-weight: 700; margin-bottom: .6rem; font-variant-numeric: tabular-nums; }
+    .process p { color: var(--muted); margin-top: .35rem; font-size: .95rem; }
+
+    .big-quote { font-size: clamp(1.6rem, 3.4vw, 2.7rem); line-height: 1.2; letter-spacing: -.03em; font-weight: 640; max-width: 28ch; }
+    .big-quote + .who { margin-top: 2rem; }
+    .who { display: flex; align-items: center; gap: .8rem; }
+    .who b { display: block; }
+    .who span { color: var(--muted); font-size: .9rem; }
+
+    .about-photo { --ar: 1 / 1; --ph-radius: 28px; --ph-icon: 3rem; }
+    .about p + p { margin-top: 1rem; }
+    .about p { color: var(--muted); }
+    .skills { display: flex; flex-wrap: wrap; gap: .5rem; list-style: none; padding: 0; margin: 1.5rem 0 0; }
+
+    .contact h2 { font-size: clamp(2.6rem, 8vw, 6.4rem); line-height: .98; letter-spacing: -.05em; font-weight: 750; }
+    .contact .mail { display: inline-flex; align-items: center; gap: .6rem; margin-top: 1.6rem; color: var(--accent); font-weight: 650; font-size: 1.15rem; text-decoration: none; }
+    .contact .mail:hover { text-decoration: underline; text-underline-offset: 6px; }
+    .form-note { min-height: 1.5em; font-size: .92rem; color: var(--accent); }
+    .form-note[data-error] { color: var(--bad); }
+  </style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="demo-bar"><div class="nar-container nar-pi-auto">
+  <a href="../index.html#examples">&larr; Back to Narleaf Reveal</a>
+  <span>Example: portfolio</span>
+</div></div>
+
+<header class="site-header">
+  <div class="nar-container nar-pi-auto">
+    <nav class="nav" aria-label="Main">
+      <a class="brand" href="#top"><span class="brand__mark" style="border-radius:50%"></span>Jane Doe</a>
+      <ul class="nav__links" id="menu">
+        <li><a href="#work">Work</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="nav__cta"><a class="btn btn--primary btn--sm" href="#contact">Hire me</a></div>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-controls="menu" aria-expanded="false" aria-label="Menu"><i class="ico i-menu"></i></button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- Hero -->
+  <section id="top" aria-labelledby="hero-title">
+    <div class="hero nar-container nar-pi-auto nar-grid nar-gap-auto">
+      <div class="nar-span-12 nar-span-lg-8">
+        <p class="status muted" data-nar-reveal="slide-left" data-nar-reveal-distance="30"><span class="dot"></span>Available for new projects from March</p>
+        <h1 id="hero-title" class="lines" data-nar-reveal-stagger="140" data-nar-reveal-easing="cubic-bezier(.2,.8,.2,1)">
+          <span data-nar-reveal="clip-up" data-nar-reveal-duration="1000">Designer</span>
+          <span data-nar-reveal="clip-up" data-nar-reveal-duration="1000">for <span class="accent" style="display:inline">calm</span></span>
+          <span data-nar-reveal="clip-up" data-nar-reveal-duration="1000">products.</span>
+        </h1>
+        <p class="lead" data-nar-reveal="slide-bottom" data-nar-reveal-distance="30" data-nar-reveal-delay="600">I shape brands, interfaces and small design systems for teams that care about the details.</p>
+        <div class="cta" data-nar-reveal="slide-bottom" data-nar-reveal-distance="30" data-nar-reveal-delay="750">
+          <a class="btn btn--primary" href="#work">See selected work <i class="ico i-arrow"></i></a>
+          <a class="btn btn--ghost" href="#contact">Say hello</a>
+        </div>
+      </div>
+      <div class="nar-span-12 nar-span-md-6 nar-span-lg-4">
+        <div class="ph ph--tint portrait" role="img" aria-label="Portrait placeholder" data-nar-reveal="clip-circle" data-nar-reveal-duration="1200" data-nar-reveal-delay="300"><i class="ico i-user"></i><span class="ph__label">Portrait &middot; 3&times;4</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Work: image and text arrive from opposite edges -->
+  <section class="section" id="work" aria-labelledby="work-title">
+    <div class="nar-container nar-pi-auto">
+      <div class="section__head section__head--row" data-nar-reveal-trigger="early">
+        <div style="display:grid;gap:1rem">
+          <span class="eyebrow" data-nar-reveal="fade">Selected work</span>
+          <h2 class="h-section" id="work-title" data-nar-reveal="clip-up" data-nar-reveal-duration="800">Four projects I am proud of.</h2>
+        </div>
+        <p class="fine" data-nar-reveal="fade" data-nar-reveal-delay="200">2023 &ndash; 2026</p>
+      </div>
+
+      <article class="project nar-grid nar-gap-auto nar-gi-lg-48">
+        <a class="project__media nar-span-12 nar-span-lg-7" href="#work" aria-label="Notes App case study" data-nar-reveal="slide-left" data-nar-reveal-distance="120" data-nar-reveal-trigger="early" data-nar-reveal-duration="1000" data-nar-reveal-easing="cubic-bezier(.2,.8,.2,1)">
+          <div class="ph ph--tint" role="img" aria-label="Notes App project image placeholder"><i class="ico i-image"></i><span class="ph__label">Notes App &middot; cover</span><span class="project__arrow"><i class="ico i-arrow"></i></span></div>
+        </a>
+        <div class="nar-span-12 nar-span-lg-5" data-nar-reveal-stagger="110" data-nar-reveal-trigger="early" data-nar-reveal-distance="60">
+          <div class="project__meta" data-nar-reveal="slide-right"><span>01</span><span>2026</span><span>Product design</span></div>
+          <h3 data-nar-reveal="slide-right">Notes App</h3>
+          <p data-nar-reveal="slide-right">A note-taking app for researchers: brand, interface and a launch site. Sign-ups doubled in the first month.</p>
+          <ul class="chips" data-nar-reveal="slide-right"><li class="chip">Branding</li><li class="chip">App UI</li><li class="chip">Web</li></ul>
+          <a class="more" href="#work" data-nar-reveal="slide-right">Read the case study <i class="ico i-arrow"></i></a>
+        </div>
+      </article>
+
+      <article class="project nar-grid nar-gap-auto nar-gi-lg-48">
+        <a class="project__media nar-span-12 nar-span-lg-7" href="#work" aria-label="Coffee Brand case study" data-nar-reveal="slide-right" data-nar-reveal-distance="120" data-nar-reveal-trigger="early" data-nar-reveal-duration="1000" data-nar-reveal-easing="cubic-bezier(.2,.8,.2,1)">
+          <div class="ph ph--tint" role="img" aria-label="Coffee Brand project image placeholder"><i class="ico i-image"></i><span class="ph__label">Coffee Brand &middot; cover</span><span class="project__arrow"><i class="ico i-arrow"></i></span></div>
+        </a>
+        <div class="nar-span-12 nar-span-lg-5" data-nar-reveal-stagger="110" data-nar-reveal-trigger="early" data-nar-reveal-distance="60">
+          <div class="project__meta" data-nar-reveal="slide-left"><span>02</span><span>2025</span><span>Identity</span></div>
+          <h3 data-nar-reveal="slide-left">Coffee Brand</h3>
+          <p data-nar-reveal="slide-left">Packaging and identity for a small coffee brand. Warm, loud and a little playful, and still easy to print.</p>
+          <ul class="chips" data-nar-reveal="slide-left"><li class="chip">Identity</li><li class="chip">Packaging</li></ul>
+          <a class="more" href="#work" data-nar-reveal="slide-left">Read the case study <i class="ico i-arrow"></i></a>
+        </div>
+      </article>
+
+      <article class="project nar-grid nar-gap-auto nar-gi-lg-48">
+        <a class="project__media nar-span-12 nar-span-lg-7" href="#work" aria-label="Finance App case study" data-nar-reveal="slide-left" data-nar-reveal-distance="120" data-nar-reveal-trigger="early" data-nar-reveal-duration="1000" data-nar-reveal-easing="cubic-bezier(.2,.8,.2,1)">
+          <div class="ph ph--tint" role="img" aria-label="Finance App project image placeholder"><i class="ico i-image"></i><span class="ph__label">Finance App &middot; cover</span><span class="project__arrow"><i class="ico i-arrow"></i></span></div>
+        </a>
+        <div class="nar-span-12 nar-span-lg-5" data-nar-reveal-stagger="110" data-nar-reveal-trigger="early" data-nar-reveal-distance="60">
+          <div class="project__meta" data-nar-reveal="slide-right"><span>03</span><span>2025</span><span>Dashboard</span></div>
+          <h3 data-nar-reveal="slide-right">Finance App</h3>
+          <p data-nar-reveal="slide-right">A dashboard that turns a wall of numbers into three clear screens, backed by a small design system.</p>
+          <ul class="chips" data-nar-reveal="slide-right"><li class="chip">Dashboard</li><li class="chip">Design system</li></ul>
+          <a class="more" href="#work" data-nar-reveal="slide-right">Read the case study <i class="ico i-arrow"></i></a>
+        </div>
+      </article>
+
+      <article class="project nar-grid nar-gap-auto nar-gi-lg-48">
+        <a class="project__media nar-span-12 nar-span-lg-7" href="#work" aria-label="Art Exhibition case study" data-nar-reveal="clip-circle" data-nar-reveal-duration="1200" data-nar-reveal-trigger="early">
+          <div class="ph ph--tint" role="img" aria-label="Art Exhibition project image placeholder"><i class="ico i-image"></i><span class="ph__label">Art Exhibition &middot; cover</span><span class="project__arrow"><i class="ico i-arrow"></i></span></div>
+        </a>
+        <div class="nar-span-12 nar-span-lg-5" data-nar-reveal-stagger="110" data-nar-reveal-trigger="early" data-nar-reveal-distance="60">
+          <div class="project__meta" data-nar-reveal="slide-left"><span>04</span><span>2024</span><span>Motion</span></div>
+          <h3 data-nar-reveal="slide-left">Art Exhibition</h3>
+          <p data-nar-reveal="slide-left">An exhibition identity that opens like an iris: one shape, many scales, from a poster to a projection.</p>
+          <ul class="chips" data-nar-reveal="slide-left"><li class="chip">Exhibition</li><li class="chip">Motion</li></ul>
+          <a class="more" href="#work" data-nar-reveal="slide-left">Read the case study <i class="ico i-arrow"></i></a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section class="section" id="services" aria-labelledby="services-title">
+    <div class="nar-container nar-pi-auto">
+      <div class="section__head" data-nar-reveal-trigger="early">
+        <span class="eyebrow" data-nar-reveal="fade">Services</span>
+        <h2 class="h-section" id="services-title" data-nar-reveal="clip-up" data-nar-reveal-duration="800">How I can help.</h2>
+      </div>
+      <div class="nar-grid nar-gap-auto" data-nar-reveal-stagger="110" data-nar-reveal-trigger="early" data-nar-reveal-distance="50">
+        <article class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-nar-reveal="slide-bottom"><div class="card service"><span class="service__n">01</span><span class="tile-icon"><i class="ico i-layers"></i></span><div><h3 class="h-card">Brand identity</h3><p>Name, logo, voice and a guide people actually use.</p></div></div></article>
+        <article class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-nar-reveal="slide-bottom"><div class="card service"><span class="service__n">02</span><span class="tile-icon"><i class="ico i-cursor"></i></span><div><h3 class="h-card">Product design</h3><p>Research, flows and interfaces for web and mobile.</p></div></div></article>
+        <article class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-nar-reveal="slide-bottom"><div class="card service"><span class="service__n">03</span><span class="tile-icon"><i class="ico i-box"></i></span><div><h3 class="h-card">Design systems</h3><p>Tokens, components and docs that scale with the team.</p></div></div></article>
+        <article class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-nar-reveal="slide-bottom"><div class="card service"><span class="service__n">04</span><span class="tile-icon"><i class="ico i-bolt"></i></span><div><h3 class="h-card">Motion</h3><p>Small, purposeful animation that explains the interface.</p></div></div></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="section" aria-labelledby="process-title" data-nar-reveal-trigger="center">
+    <div class="nar-container nar-pi-auto">
+      <div class="section__head">
+        <span class="eyebrow" data-nar-reveal="fade">Process</span>
+        <h2 class="h-section" id="process-title" data-nar-reveal="clip-up" data-nar-reveal-duration="800">Simple steps, no surprises.</h2>
+      </div>
+      <ol class="process nar-grid nar-gap-auto" data-nar-reveal-stagger="150">
+        <li class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-nar-reveal="slide-left" data-nar-reveal-distance="40"><h3 class="h-card">Listen</h3><p>A short call to understand goals, limits and the people you build for.</p></li>
+        <li class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-nar-reveal="slide-left" data-nar-reveal-distance="40"><h3 class="h-card">Explore</h3><p>Rough ideas first. We pick a direction together before any polish.</p></li>
+        <li class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-nar-reveal="slide-left" data-nar-reveal-distance="40"><h3 class="h-card">Refine</h3><p>Weekly reviews, clear feedback rounds and files that stay organised.</p></li>
+        <li class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-nar-reveal="slide-left" data-nar-reveal-distance="40"><h3 class="h-card">Hand over</h3><p>Ready-to-build files, notes for developers and support after launch.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Testimonial -->
+  <section class="section" aria-label="Testimonial">
+    <div class="nar-container nar-pi-auto" data-nar-reveal-trigger="early">
+      <figure style="margin:0">
+        <blockquote class="big-quote" data-nar-reveal="clip-up" data-nar-reveal-duration="1000">&ldquo;Jane made a hard product feel obvious. Our users noticed in the first week.&rdquo;</blockquote>
+        <figcaption class="who" data-nar-reveal="fade" data-nar-reveal-delay="400"><span class="avatar" style="--s:48px"><i class="ico i-user"></i></span><span><b>Client A</b><span>Founder, Notes App</span></span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="section" id="about" aria-labelledby="about-title" data-nar-reveal-trigger="center">
+    <div class="about nar-container nar-pi-auto nar-grid nar-gap-auto nar-gi-lg-48">
+      <div class="nar-span-12 nar-span-md-5 nar-span-lg-4">
+        <div class="ph ph--tint about-photo" role="img" aria-label="Studio photo placeholder" data-nar-reveal="zoom-in-center" data-nar-reveal-distance="0" data-nar-reveal-duration="900"><i class="ico i-image"></i><span class="ph__label">Studio photo &middot; 1&times;1</span></div>
+      </div>
+      <div class="nar-span-12 nar-span-md-7 nar-span-lg-8">
+        <span class="eyebrow" data-nar-reveal="fade">About</span>
+        <h2 class="h-section" id="about-title" style="margin:1rem 0 1.4rem" data-nar-reveal="clip-up" data-nar-reveal-duration="800">Eight years of making small things feel considered.</h2>
+        <div data-nar-reveal="fade" data-nar-reveal-delay="250">
+          <p>I work with founders and small teams, from first sketch to shipped product. I like clear briefs, quick feedback and good coffee.</p>
+          <p>Before freelancing I led design at two product studios and taught an evening course in interface design.</p>
+        </div>
+        <ul class="skills" data-nar-reveal-stagger="60"><li class="chip" data-nar-reveal="zoom-in-center" data-nar-reveal-distance="0">Brand</li><li class="chip" data-nar-reveal="zoom-in-center" data-nar-reveal-distance="0">Product</li><li class="chip" data-nar-reveal="zoom-in-center" data-nar-reveal-distance="0">Systems</li><li class="chip" data-nar-reveal="zoom-in-center" data-nar-reveal-distance="0">Motion</li><li class="chip" data-nar-reveal="zoom-in-center" data-nar-reveal-distance="0">Workshops</li></ul>
+        <dl class="facts nar-grid nar-gap-auto" style="margin-top:1rem" data-nar-reveal="fade" data-nar-reveal-delay="400">
+          <div class="nar-span-6 nar-span-md-4"><dt>Based in</dt><dd>City, Country</dd></div>
+          <div class="nar-span-6 nar-span-md-4"><dt>Experience</dt><dd>8 years</dd></div>
+          <div class="nar-span-6 nar-span-md-4"><dt>Projects</dt><dd>40+ shipped</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="section contact" id="contact" aria-labelledby="contact-title">
+    <div class="nar-container nar-pi-auto nar-grid nar-gap-auto nar-gi-lg-48">
+      <div class="nar-span-12 nar-span-lg-6" data-nar-reveal-trigger="early">
+        <h2 id="contact-title" class="lines" data-nar-reveal-stagger="130">
+          <span data-nar-reveal="clip-up" data-nar-reveal-duration="900">Let's make</span>
+          <span data-nar-reveal="clip-up" data-nar-reveal-duration="900">something <span class="accent" style="display:inline">good.</span></span>
+        </h2>
+        <a class="mail" href="#" data-demo data-nar-reveal="bounce-in-bottom" data-nar-reveal-distance="40" data-nar-reveal-delay="400"><i class="ico i-mail"></i>hello@example.com</a>
+      </div>
+      <form class="nar-span-12 nar-span-lg-6 nar-grid nar-gap-16" id="contact-form" novalidate data-nar-reveal="slide-bottom" data-nar-reveal-distance="40" data-nar-reveal-trigger="early">
+        <div class="field nar-span-12 nar-span-sm-6"><label for="f-name">Name</label><input class="input" id="f-name" name="name" autocomplete="name" required /></div>
+        <div class="field nar-span-12 nar-span-sm-6"><label for="f-email">Email</label><input class="input" id="f-email" name="email" type="email" autocomplete="email" required /></div>
+        <div class="field nar-span-12"><label for="f-type">Project type</label>
+          <select class="input" id="f-type" name="type"><option>Brand identity</option><option>Product design</option><option>Design system</option><option>Something else</option></select></div>
+        <div class="field nar-span-12"><label for="f-msg">Message</label><textarea class="input" id="f-msg" name="msg" required></textarea></div>
+        <div class="nar-span-12" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+          <button class="btn btn--primary" type="submit">Send message <i class="ico i-arrow"></i></button>
+          <p class="form-note" id="form-note" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="nar-container nar-pi-auto" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+    <p class="fine">&copy; Jane Doe. A made-up portfolio for the Narleaf Reveal demo.</p>
+    <a class="fine" href="../index.html#examples">Back to examples</a>
+  </div>
+</footer>
+
+</body>
+</html>

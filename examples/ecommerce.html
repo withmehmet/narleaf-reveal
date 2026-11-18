@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E-commerce example · Narleaf Reveal</title>
+  <meta name="description" content="An online store in a dark theme, built with Narleaf Layout and Narleaf Reveal: filter and sort, wishlist, add to cart, bouncing product cards and a sliding sale banner." />
+  <meta name="theme-color" content="#0e0e10" />
+  <link rel="stylesheet" href="../narleaf-layout.css" />
+  <link rel="stylesheet" href="../narleaf-reveal.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <script src="shared.js"></script>
+  <script src="../narleaf-reveal.js" defer></script>
+  <style>
+    :root { --accent: #ffb84d; --accent-ink: #1a1204; }
+    .promo { background: var(--accent); color: var(--accent-ink); text-align: center; font-size: .86rem; font-weight: 650; padding: .5rem 1rem; }
+    .search { position: relative; flex: 1 1 260px; max-width: 360px; }
+    .search .ico { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--faint); }
+    .search .input { padding-left: 2.8rem; border-radius: 99px; min-height: 44px; }
+    @media (max-width: 1023px) { .search { display: none; } }
+    .cart-btn { gap: .6rem; }
+    .cart-btn .badge { min-width: 22px; justify-content: center; }
+    [hidden] { display: none !important; }
+
+    .hero { padding-block: clamp(2rem, 5vw, 4rem) clamp(2.5rem, 6vw, 4.5rem); align-items: center; }
+    .hero h1 { font-size: clamp(2.7rem, 6.6vw, 5rem); line-height: 1; letter-spacing: -.045em; font-weight: 750; }
+    .hero .lead { margin-top: 1.4rem; }
+    .hero .cta { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
+    .hero__usps { display: flex; flex-wrap: wrap; gap: .6rem 1.4rem; list-style: none; padding: 0; margin: 2rem 0 0; color: var(--muted); font-size: .9rem; }
+    .hero__usps li { display: flex; align-items: center; gap: .5rem; }
+    .hero__usps .ico { color: var(--accent); }
+    .stage { position: relative; }
+    .stage .ph { --ar: 1 / 1; --ph-radius: 36px; --ph-icon: 4rem; }
+    .price-tag { position: absolute; left: 1rem; bottom: 1rem; display: flex; align-items: center; gap: 1rem; padding: .8rem 1.1rem; border-radius: 18px; background: var(--bg); border: 1px solid var(--line); }
+    .price-tag b { display: block; font-size: 1.05rem; }
+    .price-tag span { color: var(--muted); font-size: .85rem; }
+    .price-tag .num { font-size: 1.4rem; font-weight: 750; color: var(--accent); letter-spacing: -.03em; }
+    .stage .badge { position: absolute; right: 1rem; top: 1rem; width: 86px; height: 86px; border-radius: 50%; justify-content: center; text-align: center; line-height: 1.05; font-size: 1.15rem; flex-direction: column; gap: 0; }
+    .stage .badge small { font-size: .66rem; font-weight: 600; }
+
+    .cat { display: block; text-decoration: none; position: relative; }
+    .cat .ph { --ar: 1 / 1; --ph-radius: 24px; --ph-icon: 2.4rem; transition: border-color .2s; }
+    .cat:hover .ph { border-color: var(--accent); }
+    .cat__label { position: absolute; left: .8rem; right: .8rem; bottom: .8rem; display: flex; justify-content: space-between; align-items: center; padding: .6rem .6rem .6rem 1rem; border-radius: 99px; background: var(--bg); font-weight: 620; font-size: .95rem; }
+    .cat__label .ico { color: var(--accent); }
+
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; margin-bottom: 1.8rem; }
+    .toolbar .filters { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .toolbar .tools { margin-left: auto; display: flex; align-items: center; gap: 1rem; }
+    .toolbar .input { min-height: 40px; padding-block: .4rem; width: auto; border-radius: 99px; }
+    .results { color: var(--faint); font-size: .88rem; }
+
+    .product { display: grid; gap: .9rem; align-content: start; height: 100%; padding: .8rem .8rem 1.3rem; }
+    .product .media { position: relative; }
+    .product .ph { --ar: 1 / 1; --ph-radius: 16px; --ph-icon: 2.2rem; }
+    .product .badge { position: absolute; left: .7rem; top: .7rem; }
+    .product .badge--sale { background: var(--bad); color: #fff; }
+    .wish { position: absolute; right: .6rem; top: .6rem; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--bg); color: var(--muted); cursor: pointer; transition: color .15s, transform .15s; }
+    .wish:hover { color: var(--ink); }
+    .wish[aria-pressed="true"] { color: var(--bad); transform: scale(1.08); }
+    .wish[aria-pressed="true"] .ico { background: currentColor; }
+    .product__body { display: grid; gap: .35rem; padding-inline: .4rem; }
+    .product h3 { font-size: 1.02rem; font-weight: 620; letter-spacing: -.01em; }
+    .rating { display: flex; align-items: center; gap: .5rem; color: var(--faint); font-size: .8rem; }
+    .stars { --r: 5; position: relative; display: inline-block; width: 5em; height: 1em; font-size: .95rem; }
+    .stars::before, .stars i { content: ""; position: absolute; top: 0; bottom: 0; left: 0; -webkit-mask: var(--i) 0 0 / 1em 1em repeat-x; mask: var(--i) 0 0 / 1em 1em repeat-x; }
+    .stars::before { right: 0; background: var(--line); }
+    .stars i { width: calc(var(--r) * 20%); background: var(--accent); }
+    .price { display: flex; align-items: baseline; gap: .6rem; }
+    .price b { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+    .price s { color: var(--faint); font-size: .9rem; }
+    .product .btn { margin: .3rem .4rem 0; }
+
+    .banner { overflow: hidden; align-items: center; padding: clamp(1.6rem, 4vw, 3rem); }
+    .banner h2 { font-size: clamp(2rem, 4.6vw, 3.4rem); line-height: 1.02; letter-spacing: -.04em; font-weight: 750; }
+    .banner p { margin-top: 1rem; max-width: 26rem; opacity: .85; }
+    .banner .btn { margin-top: 1.5rem; background: var(--accent-ink); color: var(--ink); }
+    .banner .btn:hover { background: var(--ink); color: var(--accent-ink); }
+    .banner .ph { --ar: 4 / 3; --ph-radius: 22px; --ph-bg: color-mix(in srgb, var(--accent-ink) 14%, transparent); --ph-ink: var(--accent-ink); border-color: color-mix(in srgb, var(--accent-ink) 30%, transparent); }
+    .big { font-size: clamp(3.4rem, 8vw, 6rem); font-weight: 800; letter-spacing: -.06em; line-height: .9; }
+
+    .perk { display: flex; align-items: center; gap: 1rem; }
+    .perk b { display: block; font-size: .98rem; }
+    .perk span { color: var(--muted); font-size: .86rem; }
+    .review { display: grid; gap: 1rem; height: 100%; align-content: space-between; }
+    .review p { font-size: 1rem; line-height: 1.55; }
+    .who { display: flex; align-items: center; gap: .7rem; font-size: .9rem; }
+    .who span { color: var(--muted); display: block; font-size: .8rem; }
+
+    .news { align-items: center; }
+    .news h2 { font-size: clamp(1.6rem, 3.4vw, 2.3rem); letter-spacing: -.03em; line-height: 1.1; }
+    .news form { display: flex; flex-wrap: wrap; gap: .6rem; }
+    .news .input { flex: 1 1 200px; border-radius: 99px; }
+
+  </style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="demo-bar"><div class="nar-container nar-pi-auto">
+  <a href="../index.html#examples">&larr; Back to Narleaf Reveal</a>
+  <span>Example: e-commerce</span>
+</div></div>
+<div class="promo">Free shipping on orders over $50 &middot; made-up store for the Narleaf Reveal demo</div>
+
+<header class="site-header">
+  <div class="nar-container nar-pi-auto">
+    <nav class="nav" aria-label="Main">
+      <a class="brand" href="#top"><span class="brand__mark" style="border-radius:50%"></span>Store</a>
+      <ul class="nav__links" id="menu" style="margin-left:1rem;margin-right:auto">
+        <li><a href="#categories">Categories</a></li>
+        <li><a href="#shop">Shop</a></li>
+        <li><a href="#sale">Sale</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+      </ul>
+      <div class="search"><i class="ico i-search"></i><label class="sr-only" for="q">Search products</label><input class="input" id="q" type="search" placeholder="Search products" /></div>
+      <div class="nav__cta">
+        <button class="btn btn--icon" type="button" aria-label="Account"><i class="ico i-user"></i></button>
+        <button class="btn btn--primary cart-btn" type="button" aria-label="Cart, 2 items" id="cart-btn"><i class="ico i-bag"></i><span class="badge" id="cart-count" style="background:var(--accent-ink);color:var(--ink)">2</span></button>
+      </div>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-controls="menu" aria-expanded="false" aria-label="Menu"><i class="ico i-menu"></i></button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- Hero -->
+  <section id="top" aria-labelledby="hero-title">
+    <div class="hero nar-container nar-pi-auto nar-grid nar-gap-auto nar-gb-32">
+      <div class="nar-span-12 nar-span-lg-6">
+        <span class="eyebrow" data-nar-reveal="fade">Autumn collection</span>
+        <h1 id="hero-title" class="lines" style="margin-top:1rem" data-nar-reveal-stagger="140" data-nar-reveal-easing="cubic-bezier(.2,.8,.2,1)">
+          <span data-nar-reveal="clip-up" data-nar-reveal-duration="900">Simple things</span>
+          <span data-nar-reveal="clip-up" data-nar-reveal-duration="900">for a <span class="accent" style="display:inline">happier</span> home.</span>
+        </h1>
+        <p class="lead" data-nar-reveal="slide-bottom" data-nar-reveal-distance="30" data-nar-reveal-delay="450">Small-batch homeware in friendly colours. Made to be used every day and repaired when it is not.</p>
+        <div class="cta" data-nar-reveal="slide-bottom" data-nar-reveal-distance="30" data-nar-reveal-delay="600">
+          <a class="btn btn--primary" href="#shop">Shop the collection <i class="ico i-arrow"></i></a>
+          <a class="btn btn--ghost" href="#sale">See the sale</a>
+        </div>
+        <ul class="hero__usps" data-nar-reveal-stagger="90">
+          <li data-nar-reveal="fade" data-nar-reveal-delay="800"><i class="ico i-truck"></i>Free shipping $50+</li>
+          <li data-nar-reveal="fade" data-nar-reveal-delay="800"><i class="ico i-refresh"></i>30-day returns</li>
+          <li data-nar-reveal="fade" data-nar-reveal-delay="800"><i class="ico i-shield"></i>2-year warranty</li>
+        </ul>
+      </div>
+      <div class="nar-span-12 nar-span-lg-6">
+        <div class="stage" data-nar-reveal="clip-circle" data-nar-reveal-duration="1200" data-nar-reveal-delay="200">
+          <div class="ph ph--tint" role="img" aria-label="Hero product photo placeholder"><i class="ico i-image"></i><span class="ph__label">Hero photo &middot; 1&times;1</span></div>
+          <span class="badge" data-nar-reveal="bounce-in-center" data-nar-reveal-delay="1000" data-nar-reveal-distance="0"><small>up to</small>30%<small>off</small></span>
+          <div class="price-tag" data-nar-reveal="slide-bottom" data-nar-reveal-distance="30" data-nar-reveal-delay="1100"><div><b>Everyday mug</b><span>Stoneware, 350 ml</span></div><span class="num">$18</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories -->
+  <section class="section" id="categories" aria-labelledby="cat-title">
+    <div class="nar-container nar-pi-auto">
+      <div class="section__head section__head--row" data-nar-reveal-trigger="early">
+        <h2 class="h-section" id="cat-title" data-nar-reveal="clip-up" data-nar-reveal-duration="800">Shop by room</h2>
+        <a class="btn btn--ghost btn--sm" href="#shop" data-nar-reveal="fade" data-nar-reveal-delay="200">All products <i class="ico i-arrow"></i></a>
+      </div>
+      <div class="nar-grid nar-gap-auto" data-nar-reveal-stagger="100" data-nar-reveal-trigger="early">
+        <a class="cat nar-span-6 nar-span-lg-3" href="#shop" data-filter="kitchen" data-nar-reveal="zoom-in-bottom" data-nar-reveal-distance="40"><div class="ph ph--tint" role="img" aria-label="Kitchen category placeholder"><i class="ico i-image"></i></div><span class="cat__label">Kitchen <i class="ico i-arrow"></i></span></a>
+        <a class="cat nar-span-6 nar-span-lg-3" href="#shop" data-filter="living" data-nar-reveal="zoom-in-bottom" data-nar-reveal-distance="40"><div class="ph ph--tint" role="img" aria-label="Living category placeholder"><i class="ico i-image"></i></div><span class="cat__label">Living <i class="ico i-arrow"></i></span></a>
+        <a class="cat nar-span-6 nar-span-lg-3" href="#shop" data-filter="lighting" data-nar-reveal="zoom-in-bottom" data-nar-reveal-distance="40"><div class="ph ph--tint" role="img" aria-label="Lighting category placeholder"><i class="ico i-image"></i></div><span class="cat__label">Lighting <i class="ico i-arrow"></i></span></a>
+        <a class="cat nar-span-6 nar-span-lg-3" href="#shop" data-filter="all" data-nar-reveal="zoom-in-bottom" data-nar-reveal-distance="40"><div class="ph ph--tint" role="img" aria-label="Gifts category placeholder"><i class="ico i-image"></i></div><span class="cat__label">Gifts <i class="ico i-arrow"></i></span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products -->
+  <section class="section" id="shop" aria-labelledby="shop-title">
+    <div class="nar-container nar-pi-auto">
+      <div class="section__head" style="margin-bottom:1.6rem" data-nar-reveal-trigger="early">
+        <h2 class="h-section" id="shop-title" data-nar-reveal="clip-up" data-nar-reveal-duration="800">Best sellers</h2>
+      </div>
+      <div class="toolbar" data-nar-reveal="fade" data-nar-reveal-trigger="early">
+        <div class="filters" role="group" aria-label="Category">
+          <button class="chip" type="button" data-cat="all" aria-pressed="true">All</button>
+          <button class="chip" type="button" data-cat="kitchen" aria-pressed="false">Kitchen</button>
+          <button class="chip" type="button" data-cat="living" aria-pressed="false">Living</button>
+          <button class="chip" type="button" data-cat="lighting" aria-pressed="false">Lighting</button>
+        </div>
+        <div class="tools">
+          <span class="results" id="results" role="status" aria-live="polite">8 products</span>
+          <label class="sr-only" for="sort">Sort products</label>
+          <select class="input" id="sort"><option value="featured">Featured</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select>
+        </div>
+      </div>
+
+      <div class="nar-grid nar-gap-auto" id="grid" data-nar-reveal-stagger="100" data-nar-reveal-trigger="early" data-nar-reveal-distance="60">
+        <article class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-cat="kitchen" data-price="18" data-order="1" data-name="Everyday mug" data-nar-reveal="bounce-in-bottom"><div class="card product"><div class="media"><div class="ph" role="img" aria-label="Everyday mug photo placeholder"><i class="ico i-image"></i></div><button class="wish" type="button" aria-pressed="false" aria-label="Save Everyday mug"><i class="ico i-heart"></i></button></div><div class="product__body"><h3>Everyday mug</h3><div class="rating"><span class="stars i-star" style="--r:4.8" role="img" aria-label="4.8 out of 5"><i></i></span>(212)</div><div class="price"><b>$18</b></div></div><button class="btn btn--ghost btn--sm" type="button" data-add>Add to cart</button></div></article>
+        <article class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-cat="lighting" data-price="44" data-order="2" data-name="Desk lamp" data-nar-reveal="bounce-in-bottom"><div class="card product"><div class="media"><div class="ph" role="img" aria-label="Desk lamp photo placeholder"><i class="ico i-image"></i></div><span class="badge badge--sale">-20%</span><button class="wish" type="button" aria-pressed="false" aria-label="Save Desk lamp"><i class="ico i-heart"></i></button></div><div class="product__body"><h3>Desk lamp</h3><div class="rating"><span class="stars i-star" style="--r:4.6" role="img" aria-label="4.6 out of 5"><i></i></span>(98)</div><div class="price"><b>$44</b><s>$55</s></div></div><button class="btn btn--ghost btn--sm" type="button" data-add>Add to cart</button></div></article>
+        <article class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-cat="living" data-price="420" data-order="3" data-name="Lounge sofa" data-nar-reveal="bounce-in-bottom"><div class="card product"><div class="media"><div class="ph" role="img" aria-label="Lounge sofa photo placeholder"><i class="ico i-image"></i></div><button class="wish" type="button" aria-pressed="false" aria-label="Save Lounge sofa"><i class="ico i-heart"></i></button></div><div class="product__body"><h3>Lounge sofa</h3><div class="rating"><span class="stars i-star" style="--r:4.7" role="img" aria-label="4.7 out of 5"><i></i></span>(64)</div><div class="price"><b>$420</b></div></div><button class="btn btn--ghost btn--sm" type="button" data-add>Add to cart</button></div></article>
+        <article class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-cat="living" data-price="26" data-order="4" data-name="Canvas tote" data-nar-reveal="bounce-in-bottom"><div class="card product"><div class="media"><div class="ph" role="img" aria-label="Canvas tote photo placeholder"><i class="ico i-image"></i></div><span class="badge badge--sale">-30%</span><button class="wish" type="button" aria-pressed="false" aria-label="Save Canvas tote"><i class="ico i-heart"></i></button></div><div class="product__body"><h3>Canvas tote</h3><div class="rating"><span class="stars i-star" style="--r:4.5" role="img" aria-label="4.5 out of 5"><i></i></span>(143)</div><div class="price"><b>$26</b><s>$37</s></div></div><button class="btn btn--ghost btn--sm" type="button" data-add>Add to cart</button></div></article>
+        <article class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-cat="kitchen" data-price="32" data-order="5" data-name="Cutting board" data-nar-reveal="bounce-in-bottom"><div class="card product"><div class="media"><div class="ph" role="img" aria-label="Cutting board photo placeholder"><i class="ico i-image"></i></div><span class="badge">Best seller</span><button class="wish" type="button" aria-pressed="false" aria-label="Save Cutting board"><i class="ico i-heart"></i></button></div><div class="product__body"><h3>Cutting board</h3><div class="rating"><span class="stars i-star" style="--r:4.9" role="img" aria-label="4.9 out of 5"><i></i></span>(310)</div><div class="price"><b>$32</b></div></div><button class="btn btn--ghost btn--sm" type="button" data-add>Add to cart</button></div></article>
+        <article class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-cat="lighting" data-price="89" data-order="6" data-name="Floor lamp" data-nar-reveal="bounce-in-bottom"><div class="card product"><div class="media"><div class="ph" role="img" aria-label="Floor lamp photo placeholder"><i class="ico i-image"></i></div><button class="wish" type="button" aria-pressed="false" aria-label="Save Floor lamp"><i class="ico i-heart"></i></button></div><div class="product__body"><h3>Floor lamp</h3><div class="rating"><span class="stars i-star" style="--r:4.4" role="img" aria-label="4.4 out of 5"><i></i></span>(51)</div><div class="price"><b>$89</b></div></div><button class="btn btn--ghost btn--sm" type="button" data-add>Add to cart</button></div></article>
+        <article class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-cat="living" data-price="48" data-order="7" data-name="Throw blanket" data-nar-reveal="bounce-in-bottom"><div class="card product"><div class="media"><div class="ph" role="img" aria-label="Throw blanket photo placeholder"><i class="ico i-image"></i></div><span class="badge">New</span><button class="wish" type="button" aria-pressed="false" aria-label="Save Throw blanket"><i class="ico i-heart"></i></button></div><div class="product__body"><h3>Throw blanket</h3><div class="rating"><span class="stars i-star" style="--r:4.8" role="img" aria-label="4.8 out of 5"><i></i></span>(187)</div><div class="price"><b>$48</b></div></div><button class="btn btn--ghost btn--sm" type="button" data-add>Add to cart</button></div></article>
+        <article class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-cat="living" data-price="22" data-order="8" data-name="Plant pot" data-nar-reveal="bounce-in-bottom"><div class="card product"><div class="media"><div class="ph" role="img" aria-label="Plant pot photo placeholder"><i class="ico i-image"></i></div><button class="wish" type="button" aria-pressed="false" aria-label="Save Plant pot"><i class="ico i-heart"></i></button></div><div class="product__body"><h3>Plant pot</h3><div class="rating"><span class="stars i-star" style="--r:4.6" role="img" aria-label="4.6 out of 5"><i></i></span>(76)</div><div class="price"><b>$22</b></div></div><button class="btn btn--ghost btn--sm" type="button" data-add>Add to cart</button></div></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sale banner -->
+  <section class="section" id="sale" aria-labelledby="sale-title">
+    <div class="nar-container nar-pi-auto">
+      <div class="card card--accent banner nar-grid nar-gap-auto" data-nar-reveal="clip-right" data-nar-reveal-duration="1000" data-nar-reveal-trigger="early">
+        <div class="nar-span-12 nar-span-lg-6">
+          <span class="eyebrow" style="color:inherit;opacity:.75">Autumn sale</span>
+          <h2 id="sale-title" style="margin-top:.8rem">Up to <span class="big" data-nar-reveal="bounce-in-left" data-nar-reveal-delay="500" data-nar-reveal-distance="60" style="display:inline-block">30%</span> off.</h2>
+          <p>Selected lamps, mugs and bags while stock lasts. Prices already updated, no code needed.</p>
+          <a class="btn" href="#shop">Shop the sale <i class="ico i-arrow"></i></a>
+        </div>
+        <div class="nar-span-12 nar-span-lg-6"><div class="ph" role="img" aria-label="Sale banner photo placeholder"><i class="ico i-image"></i><span class="ph__label">Banner &middot; 4&times;3</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Perks -->
+  <section class="section" aria-label="Why shop with us">
+    <div class="nar-container nar-pi-auto">
+      <ul class="nar-grid nar-gap-auto" style="list-style:none;padding:0;margin:0" data-nar-reveal-stagger="100" data-nar-reveal-trigger="early">
+        <li class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40"><div class="card perk"><span class="tile-icon"><i class="ico i-truck"></i></span><div><b>Free shipping</b><span>On orders over $50</span></div></div></li>
+        <li class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40"><div class="card perk"><span class="tile-icon"><i class="ico i-refresh"></i></span><div><b>30-day returns</b><span>No questions asked</span></div></div></li>
+        <li class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40"><div class="card perk"><span class="tile-icon"><i class="ico i-shield"></i></span><div><b>Secure checkout</b><span>Pay your way</span></div></div></li>
+        <li class="nar-span-12 nar-span-sm-6 nar-span-lg-3" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40"><div class="card perk"><span class="tile-icon"><i class="ico i-clock"></i></span><div><b>Fast dispatch</b><span>Ships in 24 hours</span></div></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Reviews -->
+  <section class="section" id="reviews" aria-labelledby="rev-title">
+    <div class="nar-container nar-pi-auto">
+      <div class="section__head" data-nar-reveal-trigger="early">
+        <span class="eyebrow" data-nar-reveal="fade">Reviews</span>
+        <h2 class="h-section" id="rev-title" data-nar-reveal="clip-up" data-nar-reveal-duration="800">Loved by 12,000 homes.</h2>
+      </div>
+      <div class="nar-grid nar-gap-auto" data-nar-reveal-stagger="120" data-nar-reveal-trigger="early" data-nar-reveal-distance="50">
+        <figure class="nar-span-12 nar-span-md-4" style="margin:0" data-nar-reveal="slide-bottom"><div class="card review"><span class="stars i-star" style="--r:5" role="img" aria-label="5 out of 5"><i></i></span><blockquote style="margin:0"><p>The mug feels great in the hand and has survived a year of daily use. I have ordered three more.</p></blockquote><figcaption class="who"><span class="avatar" style="--s:40px"><i class="ico i-user"></i></span><div>Customer A<span>Verified buyer</span></div></figcaption></div></figure>
+        <figure class="nar-span-12 nar-span-md-4" style="margin:0" data-nar-reveal="slide-bottom"><div class="card review"><span class="stars i-star" style="--r:5" role="img" aria-label="5 out of 5"><i></i></span><blockquote style="margin:0"><p>Fast delivery and the lamp looks even better in person. Setup took one minute.</p></blockquote><figcaption class="who"><span class="avatar" style="--s:40px"><i class="ico i-user"></i></span><div>Customer B<span>Verified buyer</span></div></figcaption></div></figure>
+        <figure class="nar-span-12 nar-span-md-4" style="margin:0" data-nar-reveal="slide-bottom"><div class="card review"><span class="stars i-star" style="--r:4" role="img" aria-label="4 out of 5"><i></i></span><blockquote style="margin:0"><p>Great quality for the price. The sofa colour is a touch darker than the photo, but I love it.</p></blockquote><figcaption class="who"><span class="avatar" style="--s:40px"><i class="ico i-user"></i></span><div>Customer C<span>Verified buyer</span></div></figcaption></div></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="section" aria-labelledby="news-title">
+    <div class="nar-container nar-pi-auto">
+      <div class="card news nar-grid nar-gap-auto" data-nar-reveal="zoom-in-bottom" data-nar-reveal-distance="40" data-nar-reveal-trigger="early">
+        <div class="nar-span-12 nar-span-lg-6"><h2 id="news-title">Get 10% off your first order.</h2><p class="muted" style="margin-top:.5rem">One short email a month. Unsubscribe any time.</p></div>
+        <div class="nar-span-12 nar-span-lg-6">
+          <form id="news-form" novalidate><label class="sr-only" for="news-email">Email address</label><input class="input" id="news-email" type="email" placeholder="you@example.com" autocomplete="email" required /><button class="btn btn--primary" type="submit">Subscribe</button></form>
+          <p class="fine" id="news-note" role="status" aria-live="polite" style="margin-top:.6rem;min-height:1.4em"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="nar-container nar-pi-auto">
+    <div class="nar-grid nar-gap-auto">
+      <div class="nar-span-12 nar-span-lg-6"><a class="brand" href="#top"><span class="brand__mark" style="border-radius:50%"></span>Store</a><p class="muted" style="margin-top:1rem;max-width:22rem">Small-batch homeware in friendly colours. A made-up shop for the Narleaf Reveal demo.</p></div>
+      <nav class="nar-span-6 nar-span-lg-2" aria-label="Shop"><ul class="link-list"><li class="link-list__title">Shop</li><li><a href="#shop">Kitchen</a></li><li><a href="#shop">Living</a></li><li><a href="#shop">Lighting</a></li></ul></nav>
+      <nav class="nar-span-6 nar-span-lg-2" aria-label="Help"><ul class="link-list"><li class="link-list__title">Help</li><li><a href="#" data-demo>Shipping</a></li><li><a href="#" data-demo>Returns</a></li><li><a href="#" data-demo>Contact</a></li></ul></nav>
+      <nav class="nar-span-6 nar-span-lg-2" aria-label="Company"><ul class="link-list"><li class="link-list__title">Company</li><li><a href="#" data-demo>About</a></li><li><a href="#" data-demo>Privacy</a></li><li><a href="../index.html#examples">All examples</a></li></ul></nav>
+    </div>
+    <p class="fine" style="margin-top:2.5rem">&copy; Store. All products, prices and reviews are made up.</p>
+  </div>
+</footer>
+
+
+</body>
+</html>

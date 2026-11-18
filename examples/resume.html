@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume example · Narleaf Reveal</title>
+  <meta name="description" content="An online resume in a dark theme, built with Narleaf Layout and Narleaf Reveal: filling skill bars, sliding timeline, project cards and a print-friendly light version." />
+  <meta name="theme-color" content="#0e0e10" />
+  <link rel="stylesheet" href="../narleaf-layout.css" />
+  <link rel="stylesheet" href="../narleaf-reveal.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <script src="shared.js"></script>
+  <script src="../narleaf-reveal.js" defer></script>
+  <style>
+    :root { --accent: #e8c468; --accent-ink: #19140a; --nar-container-max: 1120px; }
+
+    .wrap { padding-block: 1.4rem 3rem; }
+    .head { align-items: center; margin-bottom: 1.5rem; }
+    .head .ph { --ar: 1 / 1; --ph-icon: 2.2rem; max-width: 150px; }
+    .head h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); letter-spacing: -.04em; line-height: 1.02; font-weight: 750; }
+    .role { color: var(--accent); font-weight: 650; font-size: 1.15rem; margin-top: .4rem; }
+    .contact { display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; list-style: none; padding: 0; margin: 1.2rem 0 0; color: var(--muted); font-size: .94rem; }
+    .contact li { display: flex; align-items: center; gap: .5rem; }
+    .contact .ico { color: var(--accent); }
+    .contact a { text-decoration: none; }
+    .contact a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+    .actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.4rem; }
+
+    .block + .block { margin-top: 2.6rem; }
+    .block > h2 { display: flex; align-items: center; gap: .8rem; font-size: 1.3rem; letter-spacing: -.02em; margin-bottom: 1.2rem; }
+    .block > h2::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+    .summary { font-size: 1.1rem; color: var(--muted); max-width: 46rem; }
+    .stat { text-align: center; }
+    .stat b { display: block; font-size: 2rem; letter-spacing: -.04em; line-height: 1.1; color: var(--accent); }
+    .stat span { color: var(--muted); font-size: .85rem; }
+
+    .timeline { list-style: none; padding: 0 0 0 .4rem; margin: 0; border-left: 2px solid var(--line); display: grid; gap: 2rem; }
+    .job { position: relative; padding-left: 1.6rem; }
+    .job::before { content: ""; position: absolute; left: -.4rem; top: .45rem; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 3px solid var(--accent); transform: translateX(-7px); }
+    .job__top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .2rem 1rem; }
+    .job h3 { font-size: 1.1rem; letter-spacing: -.01em; }
+    .job__dates { color: var(--faint); font-size: .86rem; font-variant-numeric: tabular-nums; }
+    .job__co { color: var(--muted); font-size: .94rem; margin-top: .1rem; }
+    .job ul { margin: .8rem 0 0; padding-left: 1.1rem; color: var(--muted); display: grid; gap: .35rem; font-size: .96rem; }
+    .job li::marker { color: var(--accent); }
+    .job .tags { display: flex; flex-wrap: wrap; gap: .4rem; list-style: none; padding: 0; margin-top: .9rem; }
+
+    .project { display: grid; gap: 1rem; height: 100%; align-content: start; }
+    .project .ph { --ar: 16 / 9; --ph-icon: 2.2rem; }
+    .project p { color: var(--muted); font-size: .94rem; margin-top: .3rem; }
+
+    .edu { display: grid; gap: .2rem; height: 100%; }
+    .edu p { color: var(--muted); font-size: .92rem; }
+
+    .skill { display: grid; gap: .4rem; margin-bottom: 1rem; font-size: .92rem; font-weight: 560; }
+    .skill div { display: flex; justify-content: space-between; }
+    .skill span { color: var(--faint); font-weight: 400; }
+    .meter { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+    .meter i { display: block; height: 100%; width: var(--lv); background: var(--accent); border-radius: 99px; }
+    .tags { display: flex; flex-wrap: wrap; gap: .45rem; list-style: none; padding: 0; margin: 0; }
+    .langs { list-style: none; margin: 0; padding: 0; display: grid; gap: .7rem; font-size: .94rem; }
+    .langs li { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+    .dots { display: inline-flex; gap: 4px; }
+    .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+    .dots i.on { background: var(--accent); }
+    .side .card + .card { margin-top: 1.5rem; }
+    .side h2 { font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); margin-bottom: 1.1rem; font-weight: 650; }
+    .certs { list-style: none; margin: 0; padding: 0; display: grid; gap: .9rem; font-size: .93rem; }
+    .certs span { display: block; color: var(--faint); font-size: .82rem; }
+
+    @media print {
+      :root { --bg: #fff; --surface: #fff; --surface-2: #f1f1f1; --line: #d9d9d9; --ink: #111; --muted: #444; --faint: #666; --accent: #8a6a00; }
+      body { font-size: 11pt; }
+      .actions, .site-footer, .skip { display: none; }
+      .card { break-inside: avoid; }
+      .job, .project { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="demo-bar"><div class="nar-container nar-pi-auto">
+  <a href="../index.html#examples">&larr; Back to Narleaf Reveal</a>
+  <span>Example: resume</span>
+</div></div>
+
+<main id="main" class="wrap nar-container nar-pi-auto">
+
+  <!-- Header card -->
+  <header class="head card nar-grid nar-gap-auto" data-nar-reveal="slide-bottom" data-nar-reveal-distance="30" data-nar-reveal-easing="cubic-bezier(.2,.8,.2,1)">
+    <div class="nar-span-4 nar-span-sm-3 nar-span-lg-2">
+      <div class="ph ph--tint ph--round" role="img" aria-label="Profile photo placeholder" data-nar-reveal="zoom-in-center" data-nar-reveal-distance="0" data-nar-reveal-delay="250"><i class="ico i-user"></i></div>
+    </div>
+    <div class="nar-span-12 nar-span-sm-9 nar-span-lg-10">
+      <h1 data-nar-reveal="clip-up" data-nar-reveal-delay="300" data-nar-reveal-duration="900">Jane Doe</h1>
+      <p class="role" data-nar-reveal="fade" data-nar-reveal-delay="500">Senior Product Designer</p>
+      <ul class="contact" data-nar-reveal-stagger="80">
+        <li data-nar-reveal="slide-left" data-nar-reveal-distance="20" data-nar-reveal-delay="600"><i class="ico i-mail"></i><a href="#" data-demo>jane@example.com</a></li>
+        <li data-nar-reveal="slide-left" data-nar-reveal-distance="20" data-nar-reveal-delay="600"><i class="ico i-phone"></i>+00 000 000 00 00</li>
+        <li data-nar-reveal="slide-left" data-nar-reveal-distance="20" data-nar-reveal-delay="600"><i class="ico i-pin"></i>City, Country</li>
+        <li data-nar-reveal="slide-left" data-nar-reveal-distance="20" data-nar-reveal-delay="600"><i class="ico i-globe"></i>example.com/jane</li>
+      </ul>
+      <div class="actions" data-nar-reveal="fade" data-nar-reveal-delay="900">
+        <button class="btn btn--primary btn--sm" type="button"><i class="ico i-download"></i>Download PDF</button>
+        <a class="btn btn--ghost btn--sm" href="#" data-demo>Get in touch</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="nar-grid nar-gap-auto">
+
+    <!-- Main column -->
+    <div class="nar-span-12 nar-span-lg-8">
+      <section class="block" aria-labelledby="about-h">
+        <h2 id="about-h" data-nar-reveal="clip-right" data-nar-reveal-duration="700">About</h2>
+        <p class="summary" data-nar-reveal="fade" data-nar-reveal-delay="150">Designer with eight years of experience turning complicated problems into clear, friendly products. I enjoy small teams, quick feedback and shipping often.</p>
+        <div class="nar-grid nar-gap-16" style="margin-top:1.4rem" data-nar-reveal-stagger="110" data-nar-reveal-trigger="early">
+          <div class="card card--flat stat nar-span-4" data-nar-reveal="bounce-in-bottom" data-nar-reveal-distance="40"><b>8+</b><span>years</span></div>
+          <div class="card card--flat stat nar-span-4" data-nar-reveal="bounce-in-bottom" data-nar-reveal-distance="40"><b>40</b><span>projects</span></div>
+          <div class="card card--flat stat nar-span-4" data-nar-reveal="bounce-in-bottom" data-nar-reveal-distance="40"><b>12</b><span>teams</span></div>
+        </div>
+      </section>
+
+      <section class="block" aria-labelledby="exp-h" data-nar-reveal-trigger="early">
+        <h2 id="exp-h" data-nar-reveal="clip-right" data-nar-reveal-duration="700">Experience</h2>
+        <ol class="timeline" data-nar-reveal-stagger="150">
+          <li class="job" data-nar-reveal="slide-right" data-nar-reveal-distance="40">
+            <div class="job__top"><h3>Senior Product Designer</h3><span class="job__dates">2023 &ndash; Present</span></div>
+            <p class="job__co">Company A &middot; Remote</p>
+            <ul><li>Led the redesign of the core product experience, used by 200k people weekly.</li><li>Built a shared component library adopted by five teams.</li><li>Mentored three designers through promotion.</li></ul>
+            <ul class="tags"><li class="chip">Design systems</li><li class="chip">Research</li><li class="chip">Leadership</li></ul>
+          </li>
+          <li class="job" data-nar-reveal="slide-right" data-nar-reveal-distance="40">
+            <div class="job__top"><h3>Product Designer</h3><span class="job__dates">2020 &ndash; 2023</span></div>
+            <p class="job__co">Company B &middot; City</p>
+            <ul><li>Shipped a new onboarding that cut drop-off by a third.</li><li>Ran monthly research sessions with customers and turned them into a roadmap.</li></ul>
+            <ul class="tags"><li class="chip">Onboarding</li><li class="chip">Prototyping</li></ul>
+          </li>
+          <li class="job" data-nar-reveal="slide-right" data-nar-reveal-distance="40">
+            <div class="job__top"><h3>Junior Designer</h3><span class="job__dates">2018 &ndash; 2020</span></div>
+            <p class="job__co">Company C &middot; City</p>
+            <ul><li>Designed marketing pages and email templates.</li><li>Helped set up the first design system.</li></ul>
+            <ul class="tags"><li class="chip">Web</li><li class="chip">Email</li></ul>
+          </li>
+        </ol>
+      </section>
+
+      <section class="block" aria-labelledby="proj-h" data-nar-reveal-trigger="early">
+        <h2 id="proj-h" data-nar-reveal="clip-right" data-nar-reveal-duration="700">Selected projects</h2>
+        <div class="nar-grid nar-gap-auto" data-nar-reveal-stagger="120">
+          <article class="nar-span-12 nar-span-sm-6" data-nar-reveal="zoom-in-bottom" data-nar-reveal-distance="30"><div class="card project"><div class="ph ph--tint" role="img" aria-label="Project one image placeholder"><i class="ico i-image"></i></div><div><h3 class="h-card">Notes App</h3><p>Brand, interface and launch site for a note-taking app. Sign-ups doubled in the first month.</p></div></div></article>
+          <article class="nar-span-12 nar-span-sm-6" data-nar-reveal="zoom-in-bottom" data-nar-reveal-distance="30"><div class="card project"><div class="ph ph--tint" role="img" aria-label="Project two image placeholder"><i class="ico i-image"></i></div><div><h3 class="h-card">Finance App</h3><p>A dashboard that turns a wall of numbers into three clear screens.</p></div></div></article>
+        </div>
+      </section>
+
+      <section class="block" aria-labelledby="edu-h" data-nar-reveal-trigger="early">
+        <h2 id="edu-h" data-nar-reveal="clip-right" data-nar-reveal-duration="700">Education</h2>
+        <div class="nar-grid nar-gap-auto" data-nar-reveal-stagger="120">
+          <div class="nar-span-12 nar-span-sm-6" data-nar-reveal="slide-bottom" data-nar-reveal-distance="30"><div class="card edu"><h3 class="h-card">BA, Design</h3><p>University A &middot; 2014 &ndash; 2018</p></div></div>
+          <div class="nar-span-12 nar-span-sm-6" data-nar-reveal="slide-bottom" data-nar-reveal-distance="30"><div class="card edu"><h3 class="h-card">UX Certificate</h3><p>Institute B &middot; 2019</p></div></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Side column -->
+    <aside class="side nar-span-12 nar-span-lg-4" aria-label="Skills and details">
+      <div class="card" data-nar-reveal="slide-left" data-nar-reveal-distance="40" data-nar-reveal-trigger="early">
+        <h2>Skills</h2>
+        <div class="skill"><div>Interface design<span>Expert</span></div><div class="meter"><i style="--lv:95%" data-nar-reveal="clip-right" data-nar-reveal-duration="1100" data-nar-reveal-delay="300"></i></div></div>
+        <div class="skill"><div>Prototyping<span>Advanced</span></div><div class="meter"><i style="--lv:88%" data-nar-reveal="clip-right" data-nar-reveal-duration="1100" data-nar-reveal-delay="450"></i></div></div>
+        <div class="skill"><div>User research<span>Advanced</span></div><div class="meter"><i style="--lv:80%" data-nar-reveal="clip-right" data-nar-reveal-duration="1100" data-nar-reveal-delay="600"></i></div></div>
+        <div class="skill" style="margin-bottom:0"><div>Front-end basics<span>Intermediate</span></div><div class="meter"><i style="--lv:65%" data-nar-reveal="clip-right" data-nar-reveal-duration="1100" data-nar-reveal-delay="750"></i></div></div>
+      </div>
+
+      <div class="card" data-nar-reveal="slide-left" data-nar-reveal-distance="40" data-nar-reveal-trigger="early">
+        <h2>Tools</h2>
+        <ul class="tags" data-nar-reveal-stagger="60"><li class="chip" data-nar-reveal="zoom-in-center" data-nar-reveal-distance="0">Design tool</li><li class="chip" data-nar-reveal="zoom-in-center" data-nar-reveal-distance="0">Prototyping</li><li class="chip" data-nar-reveal="zoom-in-center" data-nar-reveal-distance="0">HTML &amp; CSS</li><li class="chip" data-nar-reveal="zoom-in-center" data-nar-reveal-distance="0">Whiteboarding</li><li class="chip" data-nar-reveal="zoom-in-center" data-nar-reveal-distance="0">Analytics</li></ul>
+      </div>
+
+      <div class="card" data-nar-reveal="slide-left" data-nar-reveal-distance="40" data-nar-reveal-trigger="early">
+        <h2>Languages</h2>
+        <ul class="langs" data-nar-reveal-stagger="80">
+          <li data-nar-reveal="fade">Language A<span class="dots" role="img" aria-label="Native"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></li>
+          <li data-nar-reveal="fade">Language B<span class="dots" role="img" aria-label="Fluent"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></li>
+          <li data-nar-reveal="fade">Language C<span class="dots" role="img" aria-label="Basic"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></li>
+        </ul>
+      </div>
+
+      <div class="card" data-nar-reveal="slide-left" data-nar-reveal-distance="40" data-nar-reveal-trigger="early">
+        <h2>Certificates</h2>
+        <ul class="certs"><li>Accessibility Specialist<span>Institute B &middot; 2022</span></li><li>Facilitation Workshop<span>Studio D &middot; 2021</span></li></ul>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="nar-container nar-pi-auto" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+    <p class="fine">&copy; Jane Doe. A made-up resume for the Narleaf Reveal demo.</p>
+    <a class="fine" href="../index.html#examples">Back to examples</a>
+  </div>
+</footer>
+</body>
+</html>

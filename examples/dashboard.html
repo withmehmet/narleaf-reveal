@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard example · Narleaf Reveal</title>
+  <meta name="description" content="An analytics dashboard in a dark theme, built with Narleaf Layout and Narleaf Reveal: counting KPI cards, wiping charts, replaying table rows and a working date range." />
+  <meta name="theme-color" content="#0e0e10" />
+  <link rel="stylesheet" href="../narleaf-layout.css" />
+  <link rel="stylesheet" href="../narleaf-reveal.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <script src="shared.js"></script>
+  <script src="../narleaf-reveal.js" defer></script>
+  <style>
+    :root { --accent: #6f9bff; --accent-ink: #0b1020; --c2: #4ade80; --c3: #fbbf24; --c4: #fb7185; }
+    .app { padding-block: 1.2rem 3rem; align-items: start; }
+
+    /* sidebar: a column on desktop, a scrolling strip on small screens */
+    .side { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 1rem; display: grid; gap: 1.2rem; }
+    @media (min-width: 1024px) { .side { position: sticky; top: 1rem; min-height: calc(100vh - 3rem); align-content: start; } }
+    .side__nav { list-style: none; margin: 0; padding: 0; display: flex; gap: .3rem; overflow-x: auto; scrollbar-width: none; }
+    .side__nav::-webkit-scrollbar { display: none; }
+    @media (min-width: 1024px) { .side__nav { display: grid; overflow: visible; } }
+    .side__nav a { display: flex; align-items: center; gap: .7rem; padding: .65rem .8rem; border-radius: 12px; color: var(--muted); font-weight: 560; font-size: .94rem; text-decoration: none; white-space: nowrap; }
+    .side__nav a:hover { background: var(--surface-2); color: var(--ink); }
+    .side__nav a[aria-current] { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+    .side__nav .badge { margin-left: auto; }
+    .side__promo { display: none; }
+    @media (min-width: 1024px) { .side__promo { display: block; margin-top: auto; } }
+    .side__promo p { color: var(--muted); font-size: .86rem; margin: .3rem 0 .8rem; }
+
+    .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 1.5rem; margin-bottom: 1.4rem; }
+    .top h1 { font-size: 1.7rem; letter-spacing: -.03em; line-height: 1.15; }
+    .tools { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem; }
+    .search { position: relative; }
+    .search .ico { position: absolute; left: .9rem; top: 50%; transform: translateY(-50%); color: var(--faint); }
+    .search .input { padding-left: 2.6rem; min-height: 44px; width: min(240px, 100%); border-radius: 99px; }
+    .range { display: inline-flex; padding: .25rem; gap: .2rem; border: 1px solid var(--line); border-radius: 99px; background: var(--surface); }
+    .range .chip { border-color: transparent; min-height: 34px; }
+    .me { display: flex; align-items: center; gap: .6rem; }
+
+    .kpi { display: grid; gap: .5rem; height: 100%; }
+    .kpi__head { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: .9rem; }
+    .kpi__value { font-size: clamp(1.7rem, 2.4vw, 2.1rem); font-weight: 720; letter-spacing: -.04em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .kpi__foot { display: flex; align-items: end; justify-content: space-between; gap: 1rem; }
+    .delta { font-size: .8rem; font-weight: 700; padding: .12rem .55rem; border-radius: 99px; font-variant-numeric: tabular-nums; }
+    .delta.up { color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+    .delta.down { color: var(--bad); background: color-mix(in srgb, var(--bad) 14%, transparent); }
+    .spark { width: 96px; height: 32px; color: var(--accent); }
+
+    .card__head { display: flex; justify-content: space-between; align-items: start; gap: 1rem; margin-bottom: 1.2rem; }
+    .card__head p { color: var(--muted); font-size: .86rem; }
+    .legend { display: flex; gap: 1rem; font-size: .82rem; color: var(--muted); }
+    .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: .4rem; vertical-align: -1px; }
+
+    .chart svg { display: block; width: 100%; height: auto; }
+    .chart text { fill: var(--faint); font-size: 11px; font-family: var(--font); }
+    .chart .grid { stroke: var(--line); stroke-width: 1; }
+    .chart .area { fill: color-mix(in srgb, var(--accent) 18%, transparent); }
+    .chart .line { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+    .chart .prev { fill: none; stroke: var(--faint); stroke-width: 2; stroke-dasharray: 5 5; }
+    .chart .dot { fill: var(--bg); stroke: var(--accent); stroke-width: 3; }
+
+    .donut { width: 168px; aspect-ratio: 1; margin: .4rem auto 1.4rem; border-radius: 50%; position: relative; background: conic-gradient(var(--accent) 0 46%, var(--c2) 0 73%, var(--c3) 0 90%, var(--c4) 0 100%); }
+    .donut::after { content: ""; position: absolute; inset: 26px; border-radius: 50%; background: var(--surface); }
+    .donut b { position: absolute; inset: 0; z-index: 1; display: grid; place-content: center; text-align: center; font-size: 1.5rem; letter-spacing: -.03em; line-height: 1.1; }
+    .donut b small { display: block; font-size: .74rem; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+    .split { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; font-size: .92rem; }
+    .split li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .split i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: .6rem; }
+
+    .table-wrap { overflow-x: auto; margin-inline: -.4rem; }
+    table { width: 100%; min-width: 600px; border-collapse: collapse; font-size: .92rem; }
+    th { text-align: left; color: var(--faint); font-weight: 600; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; padding: .6rem .6rem; border-bottom: 1px solid var(--line); }
+    td { padding: .8rem .6rem; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+    th.num { text-align: right; }
+    .person { display: flex; align-items: center; gap: .75rem; }
+    .person b { display: block; font-size: .93rem; }
+    .person span { color: var(--faint); font-size: .8rem; }
+
+    .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+    .list li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .8rem; align-items: center; }
+    .list b { display: block; font-size: .93rem; }
+    .list small { color: var(--faint); font-size: .8rem; }
+    .meter { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; margin-top: .4rem; }
+    .meter i { display: block; height: 100%; width: var(--lv); background: var(--accent); border-radius: 99px; }
+
+    .feed { list-style: none; margin: 0; padding: 0 0 0 .5rem; border-left: 2px solid var(--line); display: grid; gap: 1.2rem; }
+    .feed li { position: relative; padding-left: 1.3rem; font-size: .93rem; }
+    .feed li::before { content: ""; position: absolute; left: -.5rem; top: .35rem; width: 11px; height: 11px; border-radius: 50%; background: var(--bg); border: 3px solid var(--accent); transform: translateX(-3.5px); }
+    .feed time { display: block; color: var(--faint); font-size: .78rem; }
+  </style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="demo-bar"><div class="nar-container nar-pi-auto">
+  <a href="../index.html#examples">&larr; Back to Narleaf Reveal</a>
+  <span>Example: dashboard</span>
+</div></div>
+
+<div class="app nar-container nar-pi-auto nar-grid nar-gap-auto">
+
+  <!-- Sidebar slides in from the left -->
+  <aside class="side nar-span-12 nar-span-lg-3 nar-span-xl-2" data-nar-reveal="slide-left" data-nar-reveal-distance="40" data-nar-reveal-duration="700" data-nar-reveal-easing="cubic-bezier(.2,.8,.2,1)">
+    <a class="brand" href="#overview"><span class="brand__mark"></span>Brand</a>
+    <nav aria-label="Dashboard">
+      <ul class="side__nav" data-nar-reveal-stagger="60">
+        <li data-nar-reveal="fade" data-nar-reveal-delay="250"><a href="#overview" aria-current="page"><i class="ico i-home"></i>Overview</a></li>
+        <li data-nar-reveal="fade" data-nar-reveal-delay="250"><a href="#traffic"><i class="ico i-chart"></i>Analytics</a></li>
+        <li data-nar-reveal="fade" data-nar-reveal-delay="250"><a href="#orders"><i class="ico i-box"></i>Orders</a></li>
+        <li data-nar-reveal="fade" data-nar-reveal-delay="250"><a href="#activity"><i class="ico i-users"></i>Customers</a></li>
+        <li data-nar-reveal="fade" data-nar-reveal-delay="250"><a href="#activity"><i class="ico i-mail"></i>Messages<span class="badge">3</span></a></li>
+        <li data-nar-reveal="fade" data-nar-reveal-delay="250"><a href="../index.html#examples"><i class="ico i-arrow"></i>All examples</a></li>
+      </ul>
+    </nav>
+    <div class="card card--flat side__promo">
+      <h2 class="h-card" style="font-size:1rem">Invite your team</h2>
+      <p>Add teammates and see their numbers here.</p>
+      <a class="btn btn--primary btn--sm" href="#overview">Invite</a>
+    </div>
+  </aside>
+
+  <main id="main" class="nar-span-12 nar-span-lg-9 nar-span-xl-10">
+    <header class="top" id="overview" data-nar-reveal="slide-bottom" data-nar-reveal-distance="20">
+      <div><h1>Overview</h1><p class="muted" id="range-label">Last 7 days &middot; compared with the previous period</p></div>
+      <div class="tools">
+        <div class="search"><i class="ico i-search"></i><label class="sr-only" for="q">Search</label><input class="input" id="q" type="search" placeholder="Search orders" /></div>
+        <div class="range" role="group" aria-label="Date range">
+          <button class="chip" type="button" data-range="7d" aria-pressed="true">7 days</button>
+          <button class="chip" type="button" data-range="30d" aria-pressed="false">30 days</button>
+          <button class="chip" type="button" data-range="90d" aria-pressed="false">90 days</button>
+        </div>
+        <button class="btn btn--icon" type="button" aria-label="Notifications"><i class="ico i-bell"></i></button>
+        <div class="me"><span class="avatar"><i class="ico i-user"></i></span></div>
+      </div>
+    </header>
+
+    <!-- KPI cards: stagger, values count up when they appear -->
+    <section class="nar-grid nar-gap-auto" aria-label="Key numbers" data-nar-reveal-stagger="110" style="margin-bottom:1.5rem">
+      <article class="card kpi nar-span-12 nar-span-sm-6 nar-span-xl-3" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40" data-kpi="rev" data-prefix="$">
+        <div class="kpi__head">Revenue<i class="ico i-chart"></i></div>
+        <div class="kpi__value" data-value>$48,250</div>
+        <div class="kpi__foot"><span class="delta up" data-delta>+12.4%</span><svg class="spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true" data-nar-reveal="clip-right" data-nar-reveal-delay="500" data-nar-reveal-duration="900"><polyline points="0,26 14,22 28,24 42,15 56,18 70,9 84,12 100,3" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </article>
+      <article class="card kpi nar-span-12 nar-span-sm-6 nar-span-xl-3" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40" data-kpi="orders">
+        <div class="kpi__head">Orders<i class="ico i-box"></i></div>
+        <div class="kpi__value" data-value>1,284</div>
+        <div class="kpi__foot"><span class="delta up" data-delta>+8.1%</span><svg class="spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true" data-nar-reveal="clip-right" data-nar-reveal-delay="600" data-nar-reveal-duration="900"><polyline points="0,20 14,24 28,16 42,18 56,10 70,14 84,8 100,6" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </article>
+      <article class="card kpi nar-span-12 nar-span-sm-6 nar-span-xl-3" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40" data-kpi="visitors">
+        <div class="kpi__head">Visitors<i class="ico i-eye"></i></div>
+        <div class="kpi__value" data-value>32,910</div>
+        <div class="kpi__foot"><span class="delta up" data-delta>+3.6%</span><svg class="spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true" data-nar-reveal="clip-right" data-nar-reveal-delay="700" data-nar-reveal-duration="900"><polyline points="0,14 14,18 28,12 42,20 56,14 70,16 84,9 100,11" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </article>
+      <article class="card kpi nar-span-12 nar-span-sm-6 nar-span-xl-3" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40" data-kpi="refunds" data-inverse>
+        <div class="kpi__head">Refunds<i class="ico i-refresh"></i></div>
+        <div class="kpi__value" data-value>37</div>
+        <div class="kpi__foot"><span class="delta down" data-delta>+2.2%</span><svg class="spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true" style="color:var(--bad)" data-nar-reveal="clip-right" data-nar-reveal-delay="800" data-nar-reveal-duration="900"><polyline points="0,22 14,18 28,22 42,14 56,16 70,10 84,14 100,8" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </article>
+    </section>
+
+    <section class="nar-grid nar-gap-auto" id="traffic" style="margin-bottom:1.5rem">
+      <article class="card nar-span-12 nar-span-xl-8" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40" data-nar-reveal-trigger="early">
+        <div class="card__head">
+          <div><h2 class="h-card">Revenue</h2><p>Monthly, this year vs last year</p></div>
+          <div class="legend"><span><i style="background:var(--accent)"></i>This year</span><span><i style="background:var(--faint)"></i>Last year</span></div>
+        </div>
+        <div class="chart" data-nar-reveal="clip-right" data-nar-reveal-duration="1400" data-nar-reveal-delay="200" role="img" aria-label="Line chart: revenue grows from about 20 thousand dollars in January to about 60 thousand in December, ahead of last year.">
+          <svg viewBox="0 0 680 260" aria-hidden="true">
+            <g class="grid"><line x1="40" y1="40" x2="675" y2="40"/><line x1="40" y1="100" x2="675" y2="100"/><line x1="40" y1="160" x2="675" y2="160"/><line x1="40" y1="220" x2="675" y2="220"/></g>
+            <text x="0" y="44">$60k</text><text x="0" y="104">$40k</text><text x="0" y="164">$20k</text><text x="0" y="224">$0</text>
+            <g text-anchor="middle"><text x="50" y="246">Jan</text><text x="160" y="246">Mar</text><text x="270" y="246">May</text><text x="380" y="246">Jul</text><text x="490" y="246">Sep</text><text x="600" y="246">Nov</text></g>
+            <path class="area" d="M50 150 L105 130 L160 140 L215 110 L270 118 L325 90 L380 102 L435 70 L490 80 L545 48 L600 58 L655 32 L655 220 L50 220 Z"/>
+            <path class="prev" d="M50 170 L105 165 L160 160 L215 150 L270 152 L325 140 L380 138 L435 128 L490 126 L545 110 L600 108 L655 96"/>
+            <path class="line" d="M50 150 L105 130 L160 140 L215 110 L270 118 L325 90 L380 102 L435 70 L490 80 L545 48 L600 58 L655 32"/>
+            <circle class="dot" cx="655" cy="32" r="6"/>
+          </svg>
+        </div>
+      </article>
+
+      <article class="card nar-span-12 nar-span-xl-4" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40" data-nar-reveal-delay="150" data-nar-reveal-trigger="early">
+        <div class="card__head"><div><h2 class="h-card">Traffic sources</h2><p>Share of visitors</p></div></div>
+        <div class="donut" data-nar-reveal="clip-circle" data-nar-reveal-duration="1200" data-nar-reveal-delay="300" role="img" aria-label="Search 46%, Social 27%, Email 17%, Other 10%"><b>32.9k<small>visitors</small></b></div>
+        <ul class="split" data-nar-reveal-stagger="90" data-nar-reveal-trigger="early">
+          <li data-nar-reveal="slide-right" data-nar-reveal-distance="30" data-nar-reveal-delay="400"><span><i style="background:var(--accent)"></i>Search</span><b class="num">46%</b></li>
+          <li data-nar-reveal="slide-right" data-nar-reveal-distance="30" data-nar-reveal-delay="400"><span><i style="background:var(--c2)"></i>Social</span><b class="num">27%</b></li>
+          <li data-nar-reveal="slide-right" data-nar-reveal-distance="30" data-nar-reveal-delay="400"><span><i style="background:var(--c3)"></i>Email</span><b class="num">17%</b></li>
+          <li data-nar-reveal="slide-right" data-nar-reveal-distance="30" data-nar-reveal-delay="400"><span><i style="background:var(--c4)"></i>Other</span><b class="num">10%</b></li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="nar-grid nar-gap-auto" id="orders" style="margin-bottom:1.5rem">
+      <!-- Table rows replay every time they scroll back in (loop=infinite) -->
+      <article class="card nar-span-12 nar-span-xl-8" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40" data-nar-reveal-trigger="early">
+        <div class="card__head"><div><h2 class="h-card">Latest orders</h2><p>Rows replay each time you scroll back to them</p></div><a class="btn btn--ghost btn--sm" href="#orders">View all</a></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th scope="col">Customer</th><th scope="col">Order</th><th scope="col">Status</th><th scope="col" class="num">Total</th></tr></thead>
+            <tbody data-nar-reveal-stagger="90">
+              <tr data-nar-reveal="slide-left" data-nar-reveal-distance="40" data-nar-reveal-loop="infinite"><td><div class="person"><span class="avatar" style="--s:34px"><i class="ico i-user"></i></span><div><b>Customer A</b><span>a@example.com</span></div></div></td><td>#10482</td><td><span class="pill pill--ok">Paid</span></td><td class="num">$128.00</td></tr>
+              <tr data-nar-reveal="slide-left" data-nar-reveal-distance="40" data-nar-reveal-loop="infinite"><td><div class="person"><span class="avatar" style="--s:34px"><i class="ico i-user"></i></span><div><b>Customer B</b><span>b@example.com</span></div></div></td><td>#10481</td><td><span class="pill pill--warn">Pending</span></td><td class="num">$64.50</td></tr>
+              <tr data-nar-reveal="slide-left" data-nar-reveal-distance="40" data-nar-reveal-loop="infinite"><td><div class="person"><span class="avatar" style="--s:34px"><i class="ico i-user"></i></span><div><b>Customer C</b><span>c@example.com</span></div></div></td><td>#10480</td><td><span class="pill pill--ok">Paid</span></td><td class="num">$212.90</td></tr>
+              <tr data-nar-reveal="slide-left" data-nar-reveal-distance="40" data-nar-reveal-loop="infinite"><td><div class="person"><span class="avatar" style="--s:34px"><i class="ico i-user"></i></span><div><b>Customer D</b><span>d@example.com</span></div></div></td><td>#10479</td><td><span class="pill pill--bad">Refunded</span></td><td class="num">$39.00</td></tr>
+              <tr data-nar-reveal="slide-left" data-nar-reveal-distance="40" data-nar-reveal-loop="infinite"><td><div class="person"><span class="avatar" style="--s:34px"><i class="ico i-user"></i></span><div><b>Customer E</b><span>e@example.com</span></div></div></td><td>#10478</td><td><span class="pill pill--ok">Paid</span></td><td class="num">$87.25</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="card nar-span-12 nar-span-xl-4" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40" data-nar-reveal-delay="150" data-nar-reveal-trigger="early">
+        <div class="card__head"><div><h2 class="h-card">Top products</h2><p>By units sold</p></div></div>
+        <ul class="list" data-nar-reveal-stagger="100" data-nar-reveal-trigger="early">
+          <li data-nar-reveal="slide-right" data-nar-reveal-distance="30"><span class="ph ph--sm" style="--ar:1;width:44px;--ph-radius:12px"><i class="ico i-image"></i></span><div><b>Product one</b><div class="meter"><i style="--lv:92%" data-nar-reveal="clip-right" data-nar-reveal-duration="1000" data-nar-reveal-delay="300"></i></div></div><b class="num">412</b></li>
+          <li data-nar-reveal="slide-right" data-nar-reveal-distance="30"><span class="ph ph--sm" style="--ar:1;width:44px;--ph-radius:12px"><i class="ico i-image"></i></span><div><b>Product two</b><div class="meter"><i style="--lv:71%" data-nar-reveal="clip-right" data-nar-reveal-duration="1000" data-nar-reveal-delay="400"></i></div></div><b class="num">318</b></li>
+          <li data-nar-reveal="slide-right" data-nar-reveal-distance="30"><span class="ph ph--sm" style="--ar:1;width:44px;--ph-radius:12px"><i class="ico i-image"></i></span><div><b>Product three</b><div class="meter"><i style="--lv:54%" data-nar-reveal="clip-right" data-nar-reveal-duration="1000" data-nar-reveal-delay="500"></i></div></div><b class="num">241</b></li>
+          <li data-nar-reveal="slide-right" data-nar-reveal-distance="30"><span class="ph ph--sm" style="--ar:1;width:44px;--ph-radius:12px"><i class="ico i-image"></i></span><div><b>Product four</b><div class="meter"><i style="--lv:33%" data-nar-reveal="clip-right" data-nar-reveal-duration="1000" data-nar-reveal-delay="600"></i></div></div><b class="num">157</b></li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="nar-grid nar-gap-auto" id="activity">
+      <article class="card nar-span-12 nar-span-lg-6" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40" data-nar-reveal-trigger="early">
+        <div class="card__head"><div><h2 class="h-card">Recent activity</h2><p>What happened today</p></div></div>
+        <ol class="feed" data-nar-reveal-stagger="110" data-nar-reveal-trigger="early">
+          <li data-nar-reveal="slide-left" data-nar-reveal-distance="30">Order #10482 was paid<time>2 minutes ago</time></li>
+          <li data-nar-reveal="slide-left" data-nar-reveal-distance="30">Customer D asked for a refund<time>38 minutes ago</time></li>
+          <li data-nar-reveal="slide-left" data-nar-reveal-distance="30">Stock is low for Product three<time>2 hours ago</time></li>
+          <li data-nar-reveal="slide-left" data-nar-reveal-distance="30">Weekly report is ready<time>Yesterday</time></li>
+        </ol>
+      </article>
+      <article class="card nar-span-12 nar-span-lg-6" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40" data-nar-reveal-delay="150" data-nar-reveal-trigger="early">
+        <div class="card__head"><div><h2 class="h-card">Goals</h2><p>Progress this quarter</p></div></div>
+        <ul class="list" style="grid-template-columns:1fr" data-nar-reveal-stagger="100" data-nar-reveal-trigger="early">
+          <li style="grid-template-columns:1fr auto" data-nar-reveal="fade"><div><b>Revenue target</b><div class="meter"><i style="--lv:78%" data-nar-reveal="clip-right" data-nar-reveal-duration="1100" data-nar-reveal-delay="300"></i></div></div><b class="num">78%</b></li>
+          <li style="grid-template-columns:1fr auto" data-nar-reveal="fade"><div><b>New customers</b><div class="meter"><i style="--lv:62%" data-nar-reveal="clip-right" data-nar-reveal-duration="1100" data-nar-reveal-delay="400"></i></div></div><b class="num">62%</b></li>
+          <li style="grid-template-columns:1fr auto" data-nar-reveal="fade"><div><b>Support response time</b><div class="meter"><i style="--lv:91%" data-nar-reveal="clip-right" data-nar-reveal-duration="1100" data-nar-reveal-delay="500"></i></div></div><b class="num">91%</b></li>
+        </ul>
+      </article>
+    </section>
+
+    <p class="fine" style="margin-top:2rem">All names and numbers on this page are made up for the Narleaf Reveal demo.</p>
+  </main>
+</div>
+
+<script>
+/* Demo behaviour, not part of the library: KPI values count up when their card starts revealing
+   (nothing moves with reduced motion). The date range buttons are for show only. */
+(() => {
+  const fmt = new Intl.NumberFormat('en-US');
+  const VALUES = { rev: 48250, orders: 1284, visitors: 32910, refunds: 37 };
+  document.addEventListener('animationstart', (e) => {
+    const card = e.target;
+    if (!card.matches?.('[data-kpi]')) return;
+    const out = card.querySelector('[data-value]'), prefix = card.dataset.prefix || '', end = VALUES[card.dataset.kpi], t0 = performance.now();
+    const step = (t) => {
+      const p = Math.min(1, (t - t0) / 1100);
+      out.textContent = prefix + fmt.format(Math.round(end * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+})();
+</script>
+</body>
+</html>

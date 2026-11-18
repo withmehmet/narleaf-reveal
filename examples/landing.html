@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landing example · Narleaf Reveal</title>
+  <meta name="description" content="A SaaS landing page in a dark theme, built with Narleaf Layout and Narleaf Reveal: clip headline, bento features, centre-triggered steps, pricing toggle and FAQ." />
+  <meta name="theme-color" content="#0e0e10" />
+  <link rel="stylesheet" href="../narleaf-layout.css" />
+  <link rel="stylesheet" href="../narleaf-reveal.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <script src="shared.js"></script>
+  <script src="../narleaf-reveal.js" defer></script>
+  <style>
+    :root { --accent: #9aa8ff; --accent-ink: #0e0e10; }
+
+    .hero { padding-block: clamp(3rem, 8vw, 6rem) clamp(2.5rem, 6vw, 4rem); text-align: center; }
+    .hero .announce { display: inline-flex; align-items: center; gap: .6rem; padding: .3rem .8rem .3rem .3rem; border: 1px solid var(--line); border-radius: 99px; font-size: .86rem; color: var(--muted); text-decoration: none; margin-bottom: 1.8rem; }
+    .hero .announce:hover { border-color: var(--muted); color: var(--ink); }
+    .hero h1 { max-width: 15ch; margin-inline: auto; }
+    .hero .lead { margin: 1.5rem auto 0; }
+    .cta { display: flex; flex-wrap: wrap; justify-content: center; gap: .8rem; margin-top: 2rem; }
+    .hero .fine { margin-top: 1rem; }
+
+    .shot { margin: clamp(2.5rem, 6vw, 4rem) auto 0; max-width: 1040px; padding: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 28px; }
+    .shot__bar { display: flex; align-items: center; gap: .4rem; padding: .35rem .6rem .8rem; }
+    .shot__bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+    .shot__bar span { margin-inline: auto; padding: .15rem 1.2rem; border-radius: 99px; background: var(--surface-2); color: var(--faint); font-size: .76rem; }
+    .shot .ph { --ar: 16 / 9; --ph-radius: 18px; --ph-icon: 3.4rem; }
+
+    .logos { padding-block: 2.2rem; border-block: 1px solid var(--line); }
+    .logos p { text-align: center; margin-bottom: 1.4rem; }
+    .logos ul { list-style: none; margin: 0; padding: 0; }
+    .logos li { display: flex; align-items: center; justify-content: center; gap: .6rem; color: var(--faint); font-weight: 650; font-size: 1rem; }
+    .logos .avatar { border-radius: 9px; }
+
+    .bento .card { display: grid; gap: 1.1rem; align-content: space-between; min-height: 240px; }
+    .bento .card p { color: var(--muted); margin-top: .4rem; }
+    .bento .ph { --ar: 16 / 7; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: .4rem; }
+
+    .step { border-top: 1px solid var(--line); padding-top: 1.4rem; }
+    .step__n { display: block; font-size: 3rem; font-weight: 750; letter-spacing: -.05em; line-height: 1; color: var(--accent); margin-bottom: 1rem; font-variant-numeric: tabular-nums; }
+    .step p { color: var(--muted); margin-top: .4rem; }
+
+    .stat { text-align: center; }
+    .stat b { display: block; font-size: clamp(2.2rem, 5vw, 3.4rem); letter-spacing: -.045em; line-height: 1; }
+    .stat span { color: var(--muted); font-size: .92rem; }
+
+    .quote { display: grid; gap: 1.3rem; align-content: space-between; height: 100%; }
+    .quote .ico { color: var(--accent); font-size: 1.6rem; }
+    .quote blockquote { font-size: 1.08rem; line-height: 1.55; }
+    .who { display: flex; align-items: center; gap: .8rem; }
+    .who b { display: block; font-size: .95rem; }
+    .who span { color: var(--muted); font-size: .86rem; }
+
+    .billing { display: inline-flex; gap: .4rem; padding: .3rem; border: 1px solid var(--line); border-radius: 99px; background: var(--surface); }
+    .billing .chip { border-color: transparent; }
+    .plan { display: grid; gap: 1.4rem; align-content: start; height: 100%; }
+    .plan--pop { border-color: var(--accent); }
+    .plan__price { display: flex; align-items: baseline; gap: .4rem; }
+    .plan__price b { font-size: 3rem; line-height: 1; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+    .plan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .65rem; color: var(--muted); font-size: .96rem; }
+    .plan li { display: flex; gap: .6rem; align-items: start; }
+    .plan li .ico { color: var(--accent); margin-top: .15rem; }
+
+    .faq details { border-bottom: 1px solid var(--line); }
+    .faq summary { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding-block: 1.3rem; cursor: pointer; list-style: none; font-weight: 620; font-size: 1.08rem; }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary .ico { color: var(--muted); transition: transform .2s; }
+    .faq details[open] summary .ico { transform: rotate(45deg); color: var(--accent); }
+    .faq details p { color: var(--muted); padding-bottom: 1.4rem; max-width: 40rem; }
+
+    .final { text-align: center; padding-block: clamp(3rem, 8vw, 5.5rem); }
+    .final h2 { max-width: 16ch; margin-inline: auto; font-size: clamp(2.2rem, 5.4vw, 4rem); }
+    .final .cta .btn--primary { background: var(--accent-ink); color: var(--ink); }
+    .final .cta .btn--primary:hover { background: var(--ink); color: var(--accent-ink); }
+    .final .cta .btn--ghost { border-color: color-mix(in srgb, var(--accent-ink) 40%, transparent); }
+    .final .cta .btn--ghost:hover { border-color: var(--accent-ink); }
+  </style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="demo-bar"><div class="nar-container nar-pi-auto">
+  <a href="../index.html#examples">&larr; Back to Narleaf Reveal</a>
+  <span>Example: landing page</span>
+</div></div>
+
+<header class="site-header">
+  <div class="nar-container nar-pi-auto">
+    <nav class="nav" aria-label="Main">
+      <a class="brand" href="#top"><span class="brand__mark"></span>Brand</a>
+      <ul class="nav__links" id="menu">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="#" data-demo>Sign in</a>
+        <a class="btn btn--primary btn--sm" href="#pricing">Get started</a>
+      </div>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-controls="menu" aria-expanded="false" aria-label="Menu"><i class="ico i-menu"></i></button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- Hero -->
+  <section class="hero" id="top">
+    <div class="nar-container nar-pi-auto">
+      <a class="announce" href="#features" data-nar-reveal="fade"><span class="badge">New</span>Version 2.0 is here <i class="ico i-arrow"></i></a>
+      <h1 class="h-display lines" data-nar-reveal-stagger="140" data-nar-reveal-easing="cubic-bezier(.2,.8,.2,1)">
+        <span data-nar-reveal="clip-up" data-nar-reveal-duration="900">Plan work that</span>
+        <span data-nar-reveal="clip-up" data-nar-reveal-duration="900">actually <span class="accent" style="display:inline">ships.</span></span>
+      </h1>
+      <p class="lead" data-nar-reveal="slide-bottom" data-nar-reveal-distance="30" data-nar-reveal-delay="450">One calm place for tasks, timelines and team updates. Fewer tools, fewer meetings, more finished work.</p>
+      <div class="cta" data-nar-reveal="slide-bottom" data-nar-reveal-distance="30" data-nar-reveal-delay="600">
+        <a class="btn btn--primary" href="#pricing">Start free trial <i class="ico i-arrow"></i></a>
+        <a class="btn btn--ghost" href="#how">See how it works</a>
+      </div>
+      <p class="fine" data-nar-reveal="fade" data-nar-reveal-delay="800">14-day trial &middot; No credit card needed</p>
+
+      <div class="shot" data-nar-reveal="zoom-in-bottom" data-nar-reveal-distance="70" data-nar-reveal-duration="1100" data-nar-reveal-delay="700" data-nar-reveal-easing="cubic-bezier(.2,.8,.2,1)">
+        <div class="shot__bar" aria-hidden="true"><i></i><i></i><i></i><span>app.example.com</span></div>
+        <div class="ph ph--tint" role="img" aria-label="Product screenshot placeholder"><i class="ico i-image"></i><span class="ph__label">Product screenshot &middot; 1600&times;900</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social proof -->
+  <section class="logos" aria-label="Customers">
+    <div class="nar-container nar-pi-auto">
+      <p class="fine" data-nar-reveal="fade">Trusted by product teams at</p>
+      <ul class="nar-grid nar-gap-16" data-nar-reveal-stagger="80" data-nar-reveal-trigger="early">
+        <li class="nar-span-6 nar-span-md-4 nar-span-lg-2" data-nar-reveal="fade"><span class="avatar" style="--s:28px"><i class="ico i-image"></i></span>Client A</li>
+        <li class="nar-span-6 nar-span-md-4 nar-span-lg-2" data-nar-reveal="fade"><span class="avatar" style="--s:28px"><i class="ico i-image"></i></span>Client B</li>
+        <li class="nar-span-6 nar-span-md-4 nar-span-lg-2" data-nar-reveal="fade"><span class="avatar" style="--s:28px"><i class="ico i-image"></i></span>Client C</li>
+        <li class="nar-span-6 nar-span-md-4 nar-span-lg-2" data-nar-reveal="fade"><span class="avatar" style="--s:28px"><i class="ico i-image"></i></span>Client D</li>
+        <li class="nar-span-6 nar-span-md-4 nar-span-lg-2" data-nar-reveal="fade"><span class="avatar" style="--s:28px"><i class="ico i-image"></i></span>Client E</li>
+        <li class="nar-span-6 nar-span-md-4 nar-span-lg-2" data-nar-reveal="fade"><span class="avatar" style="--s:28px"><i class="ico i-image"></i></span>Client F</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Features: bento grid -->
+  <section class="section" id="features" aria-labelledby="features-title">
+    <div class="nar-container nar-pi-auto">
+      <div class="section__head" data-nar-reveal-trigger="early">
+        <span class="eyebrow" data-nar-reveal="fade">Features</span>
+        <h2 class="h-section" id="features-title" data-nar-reveal="clip-up" data-nar-reveal-duration="800">Everything in one view.</h2>
+        <p class="lead" data-nar-reveal="fade" data-nar-reveal-delay="200">Five ideas keep the product simple. Each one earns its place on the screen.</p>
+      </div>
+
+      <div class="bento nar-grid nar-gap-auto" data-nar-reveal-stagger="110" data-nar-reveal-trigger="early" data-nar-reveal-distance="50">
+        <article class="card nar-span-12 nar-span-md-7" data-nar-reveal="slide-bottom">
+          <div class="ph ph--tint" role="img" aria-label="Board view placeholder"><i class="ico i-image"></i><span class="ph__label">Board view</span></div>
+          <div><h3 class="h-card">Boards that stay readable</h3><p>Drag work between columns without losing the big picture. Filters remember how you like to look at things.</p></div>
+        </article>
+        <article class="card nar-span-12 nar-span-md-5" data-nar-reveal="slide-bottom">
+          <span class="tile-icon"><i class="ico i-calendar"></i></span>
+          <div><h3 class="h-card">Honest timelines</h3><p>See what fits this week before you promise it to anyone.</p></div>
+        </article>
+        <article class="card nar-span-12 nar-span-md-4" data-nar-reveal="slide-bottom">
+          <span class="tile-icon"><i class="ico i-bolt"></i></span>
+          <div><h3 class="h-card">Quick capture</h3><p>Press one key, type a thought, move on. Sort it later.</p></div>
+        </article>
+        <article class="card nar-span-12 nar-span-md-4" data-nar-reveal="slide-bottom">
+          <span class="tile-icon"><i class="ico i-users"></i></span>
+          <div><h3 class="h-card">Shared context</h3><p>Comments, files and decisions live next to the work.</p></div>
+        </article>
+        <article class="card nar-span-12 nar-span-md-4" data-nar-reveal="slide-bottom">
+          <span class="tile-icon"><i class="ico i-shield"></i></span>
+          <div><h3 class="h-card">Safe by default</h3><p>Roles, audit trail and backups without a settings maze.</p>
+            <div class="tag-row" style="margin-top:.9rem"><span class="chip">SSO</span><span class="chip">Audit log</span></div></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works: waits for the centre of the screen -->
+  <section class="section" id="how" aria-labelledby="how-title" data-nar-reveal-trigger="center">
+    <div class="nar-container nar-pi-auto">
+      <div class="section__head">
+        <span class="eyebrow" data-nar-reveal="fade">How it works</span>
+        <h2 class="h-section" id="how-title" data-nar-reveal="clip-up" data-nar-reveal-duration="800">From idea to done in three steps.</h2>
+      </div>
+      <ol class="nar-grid nar-gap-auto" style="list-style:none;padding:0;margin:0" data-nar-reveal-stagger="180">
+        <li class="step nar-span-12 nar-span-md-4" data-nar-reveal="slide-left" data-nar-reveal-distance="50"><span class="step__n">01</span><h3 class="h-card">Capture</h3><p>Drop anything in. Titles, links, voice notes. Sorting comes later.</p></li>
+        <li class="step nar-span-12 nar-span-md-4" data-nar-reveal="slide-left" data-nar-reveal-distance="50"><span class="step__n">02</span><h3 class="h-card">Plan</h3><p>Drag it onto the week, set an owner and a size. The plan tells you if it fits.</p></li>
+        <li class="step nar-span-12 nar-span-md-4" data-nar-reveal="slide-left" data-nar-reveal-distance="50"><span class="step__n">03</span><h3 class="h-card">Ship</h3><p>Mark it done and let a short digest tell the rest of the team.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Numbers -->
+  <section class="section" aria-label="Numbers">
+    <div class="nar-container nar-pi-auto">
+      <div class="card">
+        <div class="nar-grid nar-gap-auto" data-nar-reveal-stagger="100" data-nar-reveal-trigger="early">
+          <div class="stat nar-span-6 nar-span-md-3" data-nar-reveal="bounce-in-bottom" data-nar-reveal-distance="50"><b>12k</b><span>teams</span></div>
+          <div class="stat nar-span-6 nar-span-md-3" data-nar-reveal="bounce-in-bottom" data-nar-reveal-distance="50"><b>4.9</b><span>average rating</span></div>
+          <div class="stat nar-span-6 nar-span-md-3" data-nar-reveal="bounce-in-bottom" data-nar-reveal-distance="50"><b>38%</b><span>fewer status meetings</span></div>
+          <div class="stat nar-span-6 nar-span-md-3" data-nar-reveal="bounce-in-bottom" data-nar-reveal-distance="50"><b>99.9%</b><span>uptime</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="section" aria-labelledby="love-title">
+    <div class="nar-container nar-pi-auto">
+      <div class="section__head" data-nar-reveal-trigger="early">
+        <span class="eyebrow" data-nar-reveal="fade">Customers</span>
+        <h2 class="h-section" id="love-title" data-nar-reveal="clip-up" data-nar-reveal-duration="800">Teams like to open it.</h2>
+      </div>
+      <div class="nar-grid nar-gap-auto" data-nar-reveal-stagger="120" data-nar-reveal-trigger="early" data-nar-reveal-distance="50">
+        <figure class="nar-span-12 nar-span-md-4" data-nar-reveal="slide-bottom"><div class="card quote"><i class="ico i-quote"></i><blockquote>We deleted two other tools in the first month. Planning meetings now take ten minutes.</blockquote><figcaption class="who"><span class="avatar" style="--s:44px"><i class="ico i-user"></i></span><span><b>Customer A</b><span>Head of Product</span></span></figcaption></div></figure>
+        <figure class="nar-span-12 nar-span-md-4" data-nar-reveal="slide-bottom"><div class="card quote"><i class="ico i-quote"></i><blockquote>The timeline view is honest. When something does not fit, you see it straight away.</blockquote><figcaption class="who"><span class="avatar" style="--s:44px"><i class="ico i-user"></i></span><span><b>Customer B</b><span>Engineering Manager</span></span></figcaption></div></figure>
+        <figure class="nar-span-12 nar-span-md-4" data-nar-reveal="slide-bottom"><div class="card quote"><i class="ico i-quote"></i><blockquote>Onboarding a new designer took an afternoon, not a week. Everything is where you expect it.</blockquote><figcaption class="who"><span class="avatar" style="--s:44px"><i class="ico i-user"></i></span><span><b>Customer C</b><span>Design Lead</span></span></figcaption></div></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="section" id="pricing" aria-labelledby="pricing-title">
+    <div class="nar-container nar-pi-auto">
+      <div class="section__head section__head--row" data-nar-reveal-trigger="early">
+        <div style="display:grid;gap:1rem">
+          <span class="eyebrow" data-nar-reveal="fade">Pricing</span>
+          <h2 class="h-section" id="pricing-title" data-nar-reveal="clip-up" data-nar-reveal-duration="800">Simple, per seat.</h2>
+        </div>
+        <div class="billing" role="group" aria-label="Billing period" data-nar-reveal="fade" data-nar-reveal-delay="200">
+          <button class="chip" type="button" data-billing="monthly" aria-pressed="true">Monthly</button>
+          <button class="chip" type="button" data-billing="yearly" aria-pressed="false">Yearly <span class="badge">-20%</span></button>
+        </div>
+      </div>
+
+      <div class="nar-grid nar-gap-auto" data-nar-reveal-stagger="120" data-nar-reveal-trigger="early" data-nar-reveal-distance="50">
+        <article class="nar-span-12 nar-span-md-4" data-nar-reveal="slide-bottom"><div class="card plan">
+          <div><h3 class="h-card">Starter</h3><p class="muted">For individuals and tiny teams.</p></div>
+          <p class="plan__price"><b data-monthly="0" data-yearly="0">0</b><span class="muted">$ / seat / month</span></p>
+          <a class="btn btn--ghost" href="#" data-demo>Start free</a>
+          <ul><li><i class="ico i-check"></i>Up to 3 members</li><li><i class="ico i-check"></i>Unlimited tasks</li><li><i class="ico i-check"></i>Board and list views</li></ul>
+        </div></article>
+        <article class="nar-span-12 nar-span-md-4" data-nar-reveal="slide-bottom"><div class="card plan plan--pop">
+          <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem"><div><h3 class="h-card">Team</h3><p class="muted">For teams that ship every week.</p></div><span class="badge">Most popular</span></div>
+          <p class="plan__price"><b data-monthly="12" data-yearly="9">12</b><span class="muted">$ / seat / month</span></p>
+          <a class="btn btn--primary" href="#" data-demo>Start 14-day trial</a>
+          <ul><li><i class="ico i-check"></i>Everything in Starter</li><li><i class="ico i-check"></i>Timelines and workload</li><li><i class="ico i-check"></i>Weekly digest</li><li><i class="ico i-check"></i>Priority support</li></ul>
+        </div></article>
+        <article class="nar-span-12 nar-span-md-4" data-nar-reveal="slide-bottom"><div class="card plan">
+          <div><h3 class="h-card">Business</h3><p class="muted">For larger organisations.</p></div>
+          <p class="plan__price"><b data-monthly="24" data-yearly="19">24</b><span class="muted">$ / seat / month</span></p>
+          <a class="btn btn--ghost" href="#" data-demo>Talk to sales</a>
+          <ul><li><i class="ico i-check"></i>Everything in Team</li><li><i class="ico i-check"></i>SSO and audit log</li><li><i class="ico i-check"></i>Custom roles</li><li><i class="ico i-check"></i>Dedicated manager</li></ul>
+        </div></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq" aria-labelledby="faq-title">
+    <div class="nar-container nar-pi-auto nar-grid nar-gap-auto">
+      <div class="nar-span-12 nar-span-lg-4" data-nar-reveal-trigger="early">
+        <span class="eyebrow" data-nar-reveal="fade">FAQ</span>
+        <h2 class="h-section" id="faq-title" style="margin-top:1rem" data-nar-reveal="clip-up" data-nar-reveal-duration="800">Good questions.</h2>
+        <p class="muted" style="margin-top:1rem" data-nar-reveal="fade" data-nar-reveal-delay="200">Still unsure? <a href="#" data-demo>Write to us</a> and a person will answer.</p>
+      </div>
+      <div class="faq nar-span-12 nar-span-lg-8" data-nar-reveal-stagger="80" data-nar-reveal-trigger="early">
+        <details name="faq" open data-nar-reveal="slide-bottom" data-nar-reveal-distance="20"><summary>Is there a free plan?<i class="ico i-plus"></i></summary><p>Yes. Starter is free for up to three members and never expires.</p></details>
+        <details name="faq" data-nar-reveal="slide-bottom" data-nar-reveal-distance="20"><summary>Can I import my existing tasks?<i class="ico i-plus"></i></summary><p>You can import from CSV in two minutes. Boards, owners and due dates are kept.</p></details>
+        <details name="faq" data-nar-reveal="slide-bottom" data-nar-reveal-distance="20"><summary>How does the yearly discount work?<i class="ico i-plus"></i></summary><p>Pay for twelve months upfront and save 20%. You can switch back to monthly at renewal.</p></details>
+        <details name="faq" data-nar-reveal="slide-bottom" data-nar-reveal-distance="20"><summary>Where is my data stored?<i class="ico i-plus"></i></summary><p>In encrypted storage, backed up daily. Business plans can choose a region.</p></details>
+        <details name="faq" data-nar-reveal="slide-bottom" data-nar-reveal-distance="20"><summary>Can I cancel any time?<i class="ico i-plus"></i></summary><p>Yes. Cancel from settings and keep read-only access until the end of the period.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final call to action -->
+  <section class="section" aria-label="Get started">
+    <div class="nar-container nar-pi-auto">
+      <div class="card card--accent final" data-nar-reveal="zoom-in-bottom" data-nar-reveal-distance="40" data-nar-reveal-duration="900" data-nar-reveal-trigger="early">
+        <h2 class="h-display">Start planning in two minutes.</h2>
+        <div class="cta"><a class="btn btn--primary" href="#" data-demo>Create a free workspace <i class="ico i-arrow"></i></a><a class="btn btn--ghost" href="#pricing">Compare plans</a></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="nar-container nar-pi-auto">
+    <div class="nar-grid nar-gap-auto">
+      <div class="nar-span-12 nar-span-lg-6">
+        <a class="brand" href="#top"><span class="brand__mark"></span>Brand</a>
+        <p class="muted" style="margin-top:1rem;max-width:22rem">Calm planning for teams that ship. A made-up product for the Narleaf Reveal demo.</p>
+      </div>
+      <nav class="nar-span-6 nar-span-md-4 nar-span-lg-2" aria-label="Product"><ul class="link-list"><li class="link-list__title">Product</li><li><a href="#features">Features</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#how">How it works</a></li></ul></nav>
+      <nav class="nar-span-6 nar-span-md-4 nar-span-lg-2" aria-label="Company"><ul class="link-list"><li class="link-list__title">Company</li><li><a href="#" data-demo>About</a></li><li><a href="#" data-demo>Careers</a></li><li><a href="#" data-demo>Contact</a></li></ul></nav>
+      <nav class="nar-span-6 nar-span-md-4 nar-span-lg-2" aria-label="Legal"><ul class="link-list"><li class="link-list__title">Legal</li><li><a href="#" data-demo>Privacy</a></li><li><a href="#" data-demo>Terms</a></li><li><a href="../index.html#examples">All examples</a></li></ul></nav>
+    </div>
+    <p class="fine" style="margin-top:2.5rem">&copy; Brand. All names and numbers on this page are made up.</p>
+  </div>
+</footer>
+
+</body>
+</html>

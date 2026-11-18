@@ -1,0 +1,108 @@
+/*!
+ * Narleaf Reveal — tiny scroll-triggered reveal animations (CSS part). MIT License.
+ *
+ * Usage:  <div data-nar-reveal="slide-left">…</div>
+ * Effect names describe where the element comes FROM (left / right / top / bottom).
+ * One effect per element. To combine effects, nest elements.
+ *
+ * Defaults you can change (on :root or any wrapper):
+ *   --nar-reveal-distance : travel distance of slide / zoom / bounce (default 200px)
+ *   --nar-reveal-easing   : animation easing (default ease)
+ * Or per element / wrapper:  data-nar-reveal-distance="120"  data-nar-reveal-easing="ease-out"
+ */
+
+/* ---------- Base: every effect is described by a few variables ---------- */
+[data-nar-reveal] {
+  --nar-reveal-x: 0;                 /* -1 | 0 | 1  horizontal direction */
+  --nar-reveal-y: 0;                 /* -1 | 0 | 1  vertical direction   */
+  --nar-reveal-s: 1;                 /* start scale                       */
+  --nar-reveal-r: 0deg;              /* start rotation                    */
+  --nar-reveal-clip-to: inset(0);    /* clip effects: end shape           */
+  --nar-reveal-from:
+    translate(calc(var(--nar-reveal-x) * var(--nar-reveal-distance, 200px)),
+              calc(var(--nar-reveal-y) * var(--nar-reveal-distance, 200px)))
+    scale(var(--nar-reveal-s))
+    rotate(var(--nar-reveal-r));
+}
+
+/* Before it plays the element is only transparent. It stays at its natural
+   position, so the observer always measures real geometry. The offset lives
+   in the animation's `from` keyframe. Unknown effect names simply fade. */
+[data-nar-reveal]:not([data-nar-revealed]) { opacity: 0; }
+
+/* Playing. `backwards` (not `both`) means nothing is left behind after the
+   animation, so your own :hover / transform / position rules keep working.
+   JS sets duration, delay and easing inline from the data-nar-reveal-* attributes. */
+[data-nar-reveal][data-nar-revealed] {
+  animation: nar-reveal-in 800ms var(--nar-reveal-easing, ease) backwards;
+}
+
+@keyframes nar-reveal-in {
+  from { opacity: 0; transform: var(--nar-reveal-from); }
+}
+
+/* ---------- Effects ---------- */
+
+/* fade: data-nar-reveal="fade" (or empty) — no extra rules needed */
+
+/* direction: where the element comes from */
+[data-nar-reveal="slide-left"],   [data-nar-reveal="zoom-in-left"],   [data-nar-reveal="bounce-in-left"]   { --nar-reveal-x: -1; }
+[data-nar-reveal="slide-right"],  [data-nar-reveal="zoom-in-right"],  [data-nar-reveal="bounce-in-right"]  { --nar-reveal-x: 1; }
+[data-nar-reveal="slide-top"],    [data-nar-reveal="zoom-in-top"],    [data-nar-reveal="bounce-in-top"]    { --nar-reveal-y: -1; }
+[data-nar-reveal="slide-bottom"], [data-nar-reveal="zoom-in-bottom"], [data-nar-reveal="bounce-in-bottom"] { --nar-reveal-y: 1; }
+
+/* zoom / bounce start smaller */
+[data-nar-reveal^="zoom-in-"]   { --nar-reveal-s: 0.6; }
+[data-nar-reveal^="bounce-in-"] { --nar-reveal-s: 0.8; }
+
+/* rotate */
+[data-nar-reveal="rotate-left"]  { --nar-reveal-r: -90deg; }
+[data-nar-reveal="rotate-right"] { --nar-reveal-r: 90deg; }
+
+/* flip (3D) */
+[data-nar-reveal="flip-left"]  { --nar-reveal-from: perspective(1000px) rotateY(-90deg); }
+[data-nar-reveal="flip-right"] { --nar-reveal-from: perspective(1000px) rotateY(90deg); }
+[data-nar-reveal="flip-up"]    { --nar-reveal-from: perspective(1000px) rotateX(90deg); }
+[data-nar-reveal="flip-down"]  { --nar-reveal-from: perspective(1000px) rotateX(-90deg); }
+
+/* bounce: overshoots, then settles */
+[data-nar-reveal^="bounce-in-"][data-nar-revealed] { animation-name: nar-reveal-bounce; }
+
+@keyframes nar-reveal-bounce {
+  0%   { opacity: 0; transform: var(--nar-reveal-from); }
+  50%  { opacity: 1; transform: translate(calc(var(--nar-reveal-x) * -20px), calc(var(--nar-reveal-y) * -20px)) scale(1.1); }
+  70%  { transform: translate(calc(var(--nar-reveal-x) * 10px), calc(var(--nar-reveal-y) * 10px)) scale(0.9); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* clip (reveal) */
+[data-nar-reveal="clip-down"]   { --nar-reveal-clip: inset(0 0 100% 0); }
+[data-nar-reveal="clip-up"]     { --nar-reveal-clip: inset(100% 0 0 0); }
+[data-nar-reveal="clip-left"]   { --nar-reveal-clip: inset(0 100% 0 0); }
+[data-nar-reveal="clip-right"]  { --nar-reveal-clip: inset(0 0 0 100%); }
+[data-nar-reveal="clip-circle"] { --nar-reveal-clip: circle(0% at 50% 50%); --nar-reveal-clip-to: circle(150% at 50% 50%); }
+
+[data-nar-reveal^="clip-"][data-nar-revealed] { animation-name: nar-reveal-clip; }
+
+@keyframes nar-reveal-clip {
+  from { opacity: 0; clip-path: var(--nar-reveal-clip); }
+  to   { opacity: 1; clip-path: var(--nar-reveal-clip-to); }
+}
+
+/* ---------- Accessibility: respect "reduce motion" ---------- */
+/* Elements still appear when they are scrolled to, just without movement. */
+@media (prefers-reduced-motion: reduce) {
+  [data-nar-reveal] { animation: none !important; }
+}
+
+/* ---------- Failsafe: never leave content hidden ---------- */
+/* No JS, JS failed to load, old browser, or printing → show everything. */
+html:not([data-nar-reveal-ready]) [data-nar-reveal],
+html[data-nar-reveal-fallback] [data-nar-reveal] {
+  opacity: 1 !important;
+  animation: none !important;
+}
+
+@media print {
+  [data-nar-reveal] { opacity: 1 !important; animation: none !important; }
+}

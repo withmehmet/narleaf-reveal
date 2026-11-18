@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Narleaf Reveal: scroll reveal animations</title>
+  <meta name="description" content="Narleaf Reveal animates elements into view as the page scrolls. One attribute, no dependencies, 26 effects." />
+  <meta name="theme-color" content="#101010" />
+  <meta name="color-scheme" content="dark" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://withmehmet.github.io/narleaf-reveal/" />
+  <meta property="og:title" content="Narleaf Reveal: scroll reveal animations" />
+  <meta property="og:description" content="One attribute, no dependencies, 26 effects. About 2.2 KB gzipped, and content never stays hidden." />
+  <meta property="og:image" content="https://withmehmet.github.io/narleaf-reveal/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Narleaf Reveal: reveal elements as they scroll into view. About 2.2 KB gzipped, no dependencies, 26 effects." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://withmehmet.github.io/narleaf-reveal/og-image.png" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23101010'/%3E%3Crect x='7' y='7' width='18' height='6' rx='3' fill='%23ffc2a8'/%3E%3Crect x='7' y='16' width='12' height='6' rx='3' fill='%23ededed'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="narleaf-layout.css" />
+  <link rel="stylesheet" href="narleaf-reveal.css" />
+  <script src="narleaf-reveal.js" defer></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101010;
+      --panel: #181818;
+      --stage: #161616;
+      --line: #2a2a2a;
+      --ink: #ededed;
+      --muted: #a0a0a0;
+      --accent: #ffc2a8;      /* links, tags, focus */
+      --card: #ececec;        /* demo elements */
+      --card-ink: #101010;
+      --brand: #f5a98c;
+      --code: #1a1a1a;
+      --tk-s: #e6c27a;
+      --tk-v: #7fd1b9;
+      --font: "Avenir Next", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+      --mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-padding-top: 72px; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 400 1.0625rem/1.65 var(--font); -webkit-font-smoothing: antialiased; }
+    main { overflow-x: clip; } /* slide, zoom and bounce start off-position: this keeps them from adding a horizontal scrollbar */
+    h1, h2, h3, p, ul, ol, figure, pre { margin: 0; }
+    h1, h2, h3 { text-wrap: balance; }   /* even line lengths, no one-word last line */
+    p, li { text-wrap: pretty; }         /* avoids a lonely last word */
+    a { color: var(--accent); }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+
+    .skip { position: absolute; left: .75rem; top: -3rem; z-index: 20; background: var(--ink); color: var(--bg); padding: .5rem .9rem; border-radius: 8px; text-decoration: none; font-size: .9rem; }
+    .skip:focus { top: .75rem; }
+
+    /* ---------- header ---------- */
+    .bar { position: sticky; top: 0; z-index: 10; background: var(--bg); background: color-mix(in srgb, var(--bg) 86%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+    .bar-in { display: flex; align-items: center; gap: 1.2rem; height: 60px; }
+    .brand { display: inline-flex; align-items: center; gap: .6rem; font-weight: 650; letter-spacing: -.01em; color: var(--ink); text-decoration: none; white-space: nowrap; }
+    .gh { display: inline-flex; align-items: center; gap: .5rem; flex: none; height: 38px; padding-inline: .75rem; border: 1px solid var(--line); border-radius: 99px; color: var(--ink); font-size: .88rem; font-weight: 600; text-decoration: none; transition: border-color .15s, background-color .15s; }
+    .gh:hover { border-color: var(--muted); background: var(--panel); }
+    .gh:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+    .nav { display: flex; gap: 1.6rem; margin-left: auto; }
+    .nav a { color: var(--muted); text-decoration: none; font-size: .92rem; padding-block: .4rem; white-space: nowrap; border-bottom: 2px solid transparent; transition: color .15s; }
+    .nav a:hover { color: var(--ink); }
+    .nav a[aria-current="true"] { color: var(--ink); border-bottom-color: var(--brand); }
+    .menu-btn { display: none; place-items: center; width: 40px; height: 40px; flex: none; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--ink); cursor: pointer; }
+    .menu-btn svg { width: 18px; height: 18px; }
+    @media (max-width: 767px) {
+      .nav { display: none; position: absolute; left: 0; right: 0; top: 100%; margin: 0; padding: .4rem 1rem 1rem; flex-direction: column; gap: 0; background: var(--bg); border-bottom: 1px solid var(--line); }
+      .nav.is-open { display: flex; }
+      .nav a { padding: .85rem .2rem; font-size: 1rem; border-bottom: 1px solid var(--line); }
+      .gh span { display: none; }
+      .gh { width: 40px; height: 40px; padding: 0; justify-content: center; margin-left: auto; }
+      .menu-btn { display: grid; }
+    }
+
+    /* ---------- hero ---------- */
+    .hero { text-align: center; padding-block: clamp(3.5rem, 9vw, 7rem) clamp(2.5rem, 6vw, 4rem); }
+    .hero h1 { font-size: clamp(2.6rem, 6.6vw, 5.1rem); line-height: 1.03; letter-spacing: -.04em; font-weight: 650; max-width: 900px; margin-inline: auto; }
+    .hero h1 span { display: block; padding-bottom: .06em; }
+    .hero .nar-span-12 > * + * { margin-top: 1.5rem; } /* one rhythm between all hero blocks */
+    .lead { max-width: 700px; margin-inline: auto; font-size: 1.2rem; line-height: 1.6; color: var(--muted); }
+    .badge-line { display: inline-flex; align-items: center; gap: .6rem; padding: .3rem .85rem; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); font-size: .84rem; background: var(--panel); }
+    .badge-line i { width: 8px; height: 8px; border-radius: 50%; background: #7fd1b9; }
+    .cta-row { display: flex; flex-wrap: wrap; justify-content: center; gap: .8rem; }
+    .cta { display: inline-flex; align-items: center; gap: .55rem; min-height: 48px; padding: .75rem 1.5rem; border: 1.5px solid transparent; border-radius: 99px; font-size: .98rem; font-weight: 620; text-decoration: none; transition: background-color .15s, border-color .15s, color .15s, transform .15s; }
+    .cta:active { transform: translateY(1px); }
+    .cta--primary { background: var(--ink); color: var(--bg); }
+    .cta--primary:hover { background: var(--brand); }
+    .cta--ghost { border-color: var(--line); color: var(--ink); }
+    .cta--ghost:hover { border-color: var(--muted); background: var(--panel); }
+    .try { display: inline-flex; align-items: center; gap: .4rem; max-width: 100%; padding: .35rem .4rem .35rem 1.1rem; border: 1px solid var(--line); border-radius: 99px; background: var(--code); }
+    .try code { background: none; border: 0; padding: 0; font-size: .86rem; white-space: nowrap; overflow-x: auto; }
+    .try .copy-btn { flex: none; }
+    .hint { color: var(--muted); font-size: .86rem; }
+
+    /* ---------- facts strip ---------- */
+    .facts { padding-block: 0 clamp(2.5rem, 6vw, 4rem); }
+    .fact { height: 100%; padding: 1.3rem 1.4rem; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); }
+    .fact b { display: block; font-size: clamp(1.7rem, 3vw, 2.2rem); line-height: 1.1; letter-spacing: -.03em; font-weight: 650; font-variant-numeric: tabular-nums; }
+    .fact b em { font-style: normal; color: var(--brand); }
+    .fact span { display: block; margin-top: .3rem; color: var(--muted); font-size: .92rem; line-height: 1.45; }
+
+    /* ---------- sections ---------- */
+    .section { padding-block: clamp(3.25rem, 7vw, 5.5rem); border-top: 1px solid var(--line); }
+    .feature { align-items: start; --nar-gap-inline: clamp(2rem, 5vw, 4.5rem); --nar-gap-block: clamp(2rem, 5vw, 3rem); }
+    .copy > * + * { margin-top: 1.1rem; }
+    .copy h2 { font-size: clamp(1.7rem, 2.8vw, 2.3rem); line-height: 1.12; letter-spacing: -.025em; font-weight: 650; }
+    .copy p { max-width: 36rem; color: var(--muted); }
+    .copy p strong { color: var(--ink); font-weight: 600; }
+    .note { font-size: .92rem; }
+    code { font-family: var(--mono); font-size: .86em; background: var(--code); border: 1px solid var(--line); border-radius: 6px; padding: .08em .4em; color: var(--ink); white-space: nowrap; }
+    .copy p code { white-space: normal; }
+
+    /* code blocks */
+    .codebox { border: 1px solid var(--line); border-radius: 12px; background: var(--code); overflow: hidden; }
+    .codebar { display: flex; align-items: center; justify-content: space-between; padding: .3rem .4rem .3rem .95rem; border-bottom: 1px solid var(--line); font-size: .78rem; color: var(--muted); }
+    pre.code { padding: 1rem 1.15rem; overflow-x: auto; font: 400 .84rem/1.7 var(--mono); color: var(--ink); tab-size: 2; }
+    pre.code code { background: none; border: 0; padding: 0; font: inherit; white-space: pre; }
+    .tk-t, .tk-a, .tk-k, .tk-f { color: var(--accent); }
+    .tk-s { color: var(--tk-s); }
+    .tk-v { color: var(--tk-v); }
+    .tk-c { color: var(--muted); font-style: italic; }
+    .copy-btn, .replay, .pill { font: inherit; cursor: pointer; }
+    .copy-btn { font-size: .78rem; color: var(--muted); background: transparent; border: 1px solid transparent; border-radius: 7px; padding: .2rem .6rem; transition: color .15s, background-color .15s; }
+    .copy-btn:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 8%, transparent); }
+    .copy-btn.done { color: var(--tk-v); }
+
+    /* steps: a true sequence */
+    .steps { list-style: none; padding: 0; display: grid; gap: 1.6rem; counter-reset: s; }
+    .steps li { counter-increment: s; display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); gap: .25rem .9rem; }
+    .steps li::before { content: counter(s); grid-row: span 2; font-weight: 650; color: var(--brand); font-variant-numeric: tabular-nums; line-height: 1.5; }
+    .steps h3 { font-size: 1.02rem; font-weight: 600; letter-spacing: -.01em; }
+    .steps .codebox { grid-column: 2; margin-top: .4rem; }
+
+    /* ---------- stage ---------- */
+    .stage { position: relative; background: var(--stage); border: 1px solid var(--line); border-radius: 22px; overflow: clip; }
+    .stage-body { display: grid; gap: 14px; align-content: center; min-height: 300px; padding: 30px 30px 62px; }
+    .replay { position: absolute; right: 14px; bottom: 14px; display: inline-flex; align-items: center; gap: .4rem; font-size: .84rem; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 99px; padding: .32rem .8rem .32rem .65rem; }
+    .replay:hover { border-color: var(--muted); }
+    .replay svg { width: 14px; height: 14px; }
+
+    .demo { background: var(--card); color: var(--card-ink); border-radius: 14px; padding: 1rem 1.25rem; font-weight: 600; letter-spacing: -.005em; }
+    .demo.sm { padding: .7rem 1.1rem; font-size: .95rem; }
+    .demo.big { width: min(78%, 360px); margin-inline: auto; padding: 2.4rem 1.5rem; text-align: center; font-size: 1.15rem; }
+    .demo small { font-weight: 450; opacity: .85; margin-left: .4rem; }
+
+    /* time tracks: indigo = the element, orange = time. Dashed: waiting. Solid: animating. */
+    .track { position: relative; height: 8px; margin-top: 8px; }
+    .track::before { content: ""; position: absolute; left: 0; top: 3px; height: 2px; width: calc(var(--d) / 2000 * 100%); background: repeating-linear-gradient(90deg, var(--muted) 0 3px, transparent 3px 7px); }
+    .track i { position: absolute; top: 0; bottom: 0; left: calc(var(--d) / 2000 * 100%); width: calc(var(--w) / 2000 * 100%); border-radius: 99px; background: var(--brand); }
+    .ruler { display: flex; justify-content: space-between; margin-top: 4px; font-size: .75rem; color: var(--muted); font-variant-numeric: tabular-nums; border-top: 1px solid var(--line); padding-top: 4px; }
+    .legend { font-size: .8rem; color: var(--muted); }
+
+    .row { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 14px; align-items: center; }
+    .row svg { width: 56px; height: 56px; }
+    .row svg path { fill: none; stroke: var(--brand); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .row svg .axis { stroke: var(--muted); stroke-width: 1; opacity: .6; }
+    .span { height: 4px; margin-top: 8px; border-radius: 99px; background: var(--brand); width: var(--px); }
+    .tiles .demo { text-align: center; padding: .9rem .5rem; }
+    .stack { display: grid; gap: 10px; }
+    .btn { font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; color: var(--bg); background: var(--ink); border: 0; border-radius: 99px; padding: .5rem 1.1rem; justify-self: start; }
+    .btn:hover { opacity: .88; }
+
+    /* effect explorer */
+    /* effect picker: one panel, one row per family, a segmented control per row */
+    .chips { border: 1px solid var(--line); border-radius: 16px; background: var(--panel); overflow: hidden; }
+    .fam { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr); align-items: center; gap: .75rem; padding: .7rem .85rem .7rem 1.1rem; }
+    .fam + .fam { border-top: 1px solid var(--line); }
+    .fam-name { font-size: .84rem; font-weight: 600; color: var(--muted); }
+    .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); padding: 3px; gap: 2px; }
+    .pill { display: inline-flex; align-items: center; justify-content: center; min-width: 0; font-size: .85rem; line-height: 1.2; color: var(--muted); background: transparent; border: 0; border-radius: 7px; padding: .42rem .3rem; transition: background-color .15s, color .15s; }
+    .pill:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 8%, transparent); }
+    .pill[aria-checked="true"] { background: var(--ink); color: var(--bg); font-weight: 600; }
+    .pill:focus-visible { outline-offset: 1px; }
+    .fx-info { margin-top: 1rem; display: grid; gap: .7rem; }
+    .fx-info p { color: var(--muted); font-size: .95rem; }
+
+    /* trigger diagrams */
+    .vps { align-content: center; min-height: 400px; padding: 2rem 1.4rem; }
+    .vps figure { display: grid; justify-items: center; align-content: start; gap: .8rem; text-align: center; }
+    .vp { position: relative; width: min(100%, 92px); aspect-ratio: 9 / 15; background: var(--panel); border: 2px solid var(--muted); border-radius: 14px; }
+    .band { position: absolute; left: -8px; right: -8px; background: color-mix(in srgb, var(--brand) 22%, transparent); border-block: 1.5px dashed var(--brand); }
+    .vps figcaption { font-size: .85rem; line-height: 1.4; color: var(--muted); }
+    .vps figcaption b { display: block; color: var(--ink); font-weight: 600; font-size: .95rem; }
+
+    /* loop counters */
+    .counts .demo { display: grid; gap: .15rem; padding: 1.3rem 1rem; }
+    .counts .n { font-size: 1.9rem; line-height: 1; font-variant-numeric: tabular-nums; margin-top: .45rem; }
+    .counts small { margin: 0; }
+
+    /* examples: flat mini previews, one palette each */
+    .ex { display: block; color: inherit; text-decoration: none; background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 1rem 1rem 1.4rem; transition: border-color .15s, transform .2s; }
+    .ex:hover { border-color: var(--muted); transform: translateY(-3px); }
+    .ex h3 { font-size: 1.2rem; font-weight: 650; letter-spacing: -.015em; margin: 1.1rem .5rem 0; }
+    .ex p { color: var(--muted); font-size: .95rem; margin: .35rem .5rem 0; }
+    .ex-tags { display: flex; flex-wrap: wrap; gap: .4rem; list-style: none; padding: 0; margin: 1rem .5rem 0; }
+    .ex-tags li { font: 400 .78rem var(--mono); color: var(--accent); border: 1px solid var(--line); border-radius: 99px; padding: .1rem .6rem; }
+    /* neutral tile with an image icon: shown until the live preview has loaded, so no other cover ever flashes */
+    .ex-art { position: relative; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; display: grid; place-items: center; background: var(--stage); border: 1px solid var(--line); }
+    .ex-art::before { content: ""; width: 2.4rem; height: 2.4rem; background: var(--muted); opacity: .45; -webkit-mask: var(--ex-icon) center / contain no-repeat; mask: var(--ex-icon) center / contain no-repeat; --ex-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='3'/%3E%3Ccircle cx='9' cy='10' r='1.6'/%3E%3Cpath d='M4 18l5-5 4 4 3-3 4 4'/%3E%3C/svg%3E"); }
+    /* live preview: the real page in a 1280x720 frame, scaled down to the card (see script) */
+    .ex-art iframe { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; border: 0; transform-origin: 0 0; pointer-events: none; z-index: 1; opacity: 0; transition: opacity .4s; }
+    .ex-art iframe.on { opacity: 1; }
+
+    /* safe-by-default list, reference */
+    .rows { display: grid; }
+    .rows > div { padding-block: 1rem; border-top: 1px solid var(--line); }
+    .rows > div:last-child { border-bottom: 1px solid var(--line); }
+    .rows h3 { font-size: 1rem; font-weight: 600; letter-spacing: -.01em; }
+    .rows p { margin-top: .2rem; color: var(--muted); font-size: .96rem; max-width: 38rem; }
+    .table-wrap { overflow-x: auto; margin-top: 1.5rem; }
+    table { width: 100%; min-width: 680px; border-collapse: collapse; font-size: .94rem; }
+    th, td { text-align: left; padding: .8rem 1rem .8rem 0; border-top: 1px solid var(--line); vertical-align: top; }
+    th { font-weight: 600; color: var(--muted); font-size: .85rem; border-top: 0; }
+    td { color: var(--muted); }
+    td:first-child { white-space: nowrap; color: var(--ink); }
+    .good { margin-top: 2.5rem; max-width: 44rem; padding-left: 1.1rem; display: grid; gap: .6rem; color: var(--muted); }
+    .good li::marker { color: var(--brand); }
+    footer { border-top: 1px solid var(--line); padding-block: clamp(2.5rem, 6vw, 4rem) 2.2rem; color: var(--muted); font-size: .94rem; }
+    footer p { max-width: 24rem; margin-top: .9rem; }
+    .fnav h2 { margin: 0 0 .8rem; font-size: .8rem; font-weight: 650; letter-spacing: .09em; text-transform: uppercase; color: var(--ink); }
+    .fnav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .55rem; }
+    .fnav a { color: var(--muted); text-decoration: none; }
+    .fnav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+    .legal { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem 1.5rem; margin-top: 2.5rem; padding-top: 1.4rem; border-top: 1px solid var(--line); font-size: .86rem; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    pre.code:focus-visible, .table-wrap:focus-visible { outline-offset: -2px; }
+
+    @media (min-width: 1024px) { /* every second block swaps sides: text, demo / demo, text */
+      .feature.flip > :first-child { order: 2; }
+    }
+    @media (min-width: 1024px) { /* the demo stays in view while its explanation scrolls */
+      .feature > .stage, #effects .feature > .nar-span-lg-7 { position: sticky; top: 88px; }
+    }
+    @media (max-width: 520px) { .fam { grid-template-columns: minmax(0, 1fr); gap: .5rem; padding: .8rem .85rem; } }
+    @media (max-width: 520px) {
+      .stage-body { padding: 22px 18px 60px; }
+    }
+    @media (hover: none) { .ex:hover { transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .ex, .ex:hover { transition: none; transform: none; } .ex-art iframe { transition: none; } }
+  </style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="bar">
+  <div class="nar-container nar-pi-auto bar-in">
+    <a class="brand" href="#top">Narleaf Reveal</a>
+    <nav class="nav" id="site-nav" aria-label="Sections">
+      <a href="#start">Quick start</a>
+      <a href="#effects">Effects</a>
+      <a href="#examples">Examples</a>
+      <a href="#timing" data-for="options">Options</a>
+      <a href="#safe">Safety</a>
+      <a href="#reference">Reference</a>
+    </nav>
+    <a class="gh" href="https://github.com/withmehmet/narleaf-reveal" target="_blank" rel="noopener noreferrer" aria-label="Narleaf Reveal on GitHub" title="View on GitHub"><svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    <button class="menu-btn" type="button" aria-controls="site-nav" aria-expanded="false" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- Hero: the headline is revealed by the library itself -->
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="nar-container nar-pi-auto nar-grid nar-gap-auto">
+      <div class="nar-span-12" data-nar-reveal-stagger="120" data-nar-reveal-distance="24" data-nar-reveal-easing="cubic-bezier(.2,.8,.2,1)">
+        <p class="badge-line" data-nar-reveal="fade"><i></i>Open source &middot; MIT &middot; no build step</p>
+        <h1 id="hero-title" data-nar-reveal-stagger="140" data-nar-reveal-easing="cubic-bezier(.2,.8,.2,1)">
+          <span data-nar-reveal="clip-up" data-nar-reveal-duration="900">Reveal elements</span>
+          <span data-nar-reveal="clip-up" data-nar-reveal-duration="900">as they scroll into view.</span>
+        </h1>
+        <p class="lead" data-nar-reveal="slide-bottom" data-nar-reveal-delay="400">Narleaf Reveal animates elements as the page scrolls. Add one attribute, include a stylesheet and a script, and you're done.</p>
+        <div class="cta-row" data-nar-reveal="slide-bottom" data-nar-reveal-delay="550">
+          <a class="cta cta--primary" href="#start">Get started</a>
+          <a class="cta cta--ghost" href="#examples">See it on real pages</a>
+        </div>
+        <div data-nar-reveal="fade" data-nar-reveal-delay="750">
+          <p class="hint" style="margin-bottom:.7rem">Or just try the one attribute:</p>
+          <div class="try"><code>&lt;div data-nar-reveal="slide-left"&gt;</code><button class="copy-btn" type="button" data-copy="&lt;div data-nar-reveal=&quot;slide-left&quot;&gt;" aria-label="Copy the attribute example">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- At a glance -->
+  <section class="facts" aria-label="At a glance">
+    <div class="nar-container nar-pi-auto nar-grid nar-gap-auto" data-nar-reveal-stagger="100" data-nar-reveal-trigger="early" data-nar-reveal-distance="40">
+      <div class="nar-span-6 nar-span-lg-3" data-nar-reveal="slide-bottom"><div class="fact"><b>~2.2 <em>KB</em></b><span>gzipped, CSS and JS together</span></div></div>
+      <div class="nar-span-6 nar-span-lg-3" data-nar-reveal="slide-bottom"><div class="fact"><b>0</b><span>dependencies, nothing to build or configure</span></div></div>
+      <div class="nar-span-6 nar-span-lg-3" data-nar-reveal="slide-bottom"><div class="fact"><b>26</b><span>effects in seven families</span></div></div>
+      <div class="nar-span-6 nar-span-lg-3" data-nar-reveal="slide-bottom"><div class="fact"><b>Safe</b><span>content stays visible without JS, in print and with reduced motion</span></div></div>
+    </div>
+  </section>
+
+  <!-- Quick start -->
+  <section class="section" id="start" data-nav="start">
+    <div class="nar-container nar-pi-auto nar-grid nar-gap-auto feature">
+      <div class="copy nar-span-12 nar-span-lg-5">
+        <h2>Quick start</h2>
+        <p>Two files and one attribute. Nothing to build or configure.</p>
+        <ol class="steps">
+          <li>
+            <h3>Include the files</h3>
+            <pre class="code" data-lang="html"><code>&lt;link rel="stylesheet" href="narleaf-reveal.css" /&gt;
+&lt;script src="narleaf-reveal.js" defer&gt;&lt;/script&gt;</code></pre>
+          </li>
+          <li>
+            <h3>Add an attribute to any element</h3>
+            <pre class="code" data-lang="html"><code>&lt;div data-nar-reveal="slide-left"&gt;Hello&lt;/div&gt;</code></pre>
+          </li>
+          <li>
+            <h3>Adjust it with more attributes, if you want</h3>
+            <pre class="code" data-lang="html"><code>&lt;div data-nar-reveal="zoom-in-center"
+     data-nar-reveal-delay="300"
+     data-nar-reveal-duration="900"&gt;
+  Hello
+&lt;/div&gt;</code></pre>
+          </li>
+        </ol>
+      </div>
+      <div class="stage nar-span-12 nar-span-lg-7" data-stage>
+        <div class="stage-body">
+          <div class="demo big" data-nar-reveal="slide-left">Hello</div>
+          <div class="demo big" data-nar-reveal="zoom-in-center" data-nar-reveal-delay="300" data-nar-reveal-duration="900">Hello, a little later</div>
+        </div>
+        <button class="replay" type="button"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Effects explorer -->
+  <section class="section" id="effects" data-nav="effects">
+    <div class="nar-container nar-pi-auto">
+      <div class="copy" style="margin-bottom:2.5rem">
+        <h2>Effects</h2>
+        <p>26 effects in seven families. Select one to preview it. The value says which side the element comes from. An empty or unknown value simply fades in.</p>
+      </div>
+      <div class="nar-grid nar-gap-auto feature flip">
+        <div class="nar-span-12 nar-span-lg-5">
+          <div class="chips" id="fx-chips" role="radiogroup" aria-label="Effect"></div>
+        </div>
+        <div class="nar-span-12 nar-span-lg-7">
+          <div class="stage" data-stage>
+            <div class="stage-body" id="fx-body">
+              <div class="demo big" data-nar-reveal="slide-left">slide-left</div>
+            </div>
+            <button class="replay" type="button"></button>
+          </div>
+          <div class="fx-info">
+            <p id="fx-desc" aria-live="polite"></p>
+            <pre class="code" data-lang="html"><code id="fx-code"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="nesting" data-nav="effects">
+    <div class="nar-container nar-pi-auto nar-grid nar-gap-auto feature">
+      <div class="copy nar-span-12 nar-span-lg-5">
+        <h2>Combine effects by nesting</h2>
+        <p>One element carries one effect. To combine two, nest them: here the outer element slides up and the text inside wipes in a moment later.</p>
+        <pre class="code" data-lang="html"><code>&lt;div data-nar-reveal="slide-bottom"&gt;
+  &lt;span data-nar-reveal="clip-right"
+        data-nar-reveal-delay="400"&gt;
+    Nested
+  &lt;/span&gt;
+&lt;/div&gt;</code></pre>
+      </div>
+      <div class="stage nar-span-12 nar-span-lg-7" data-stage>
+        <div class="stage-body">
+          <div class="demo big" data-nar-reveal="slide-bottom"><span data-nar-reveal="clip-right" data-nar-reveal-delay="400" style="display:inline-block">Nested</span></div>
+        </div>
+        <button class="replay" type="button"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Examples -->
+  <section class="section" id="examples" data-nav="examples">
+    <div class="nar-container nar-pi-auto">
+      <div class="copy" style="margin-bottom:2.5rem">
+        <h2>Examples</h2>
+        <p>Six small pages built with Narleaf Reveal for the motion and <a href="https://github.com/withmehmet/narleaf-layout" target="_blank" rel="noopener noreferrer">Narleaf Layout</a> for the grid. All dark, with an image icon wherever a photo would go. Open one and scroll: the animations are the real thing, not a recording.</p>
+      </div>
+      <div class="ex-grid nar-grid nar-gap-auto" data-nar-reveal-stagger="120" data-nar-reveal-trigger="early" data-nar-reveal-distance="50">
+        <a class="ex nar-span-12 nar-span-md-6" href="examples/landing.html" data-nar-reveal="slide-bottom">
+          <div class="ex-art ex-landing" aria-hidden="true"><iframe data-src="examples/landing.html" title="" tabindex="-1" aria-hidden="true"></iframe></div>
+          <h3>Landing page</h3>
+          <p>A SaaS page with a wiping headline, bento features, a pricing toggle and an FAQ.</p>
+          <ul class="ex-tags"><li>clip-up</li><li>stagger</li><li>zoom-in</li><li>clip-circle</li></ul>
+        </a>
+        <a class="ex nar-span-12 nar-span-md-6" href="examples/portfolio.html" data-nar-reveal="slide-bottom">
+          <div class="ex-art ex-portfolio" aria-hidden="true"><iframe data-src="examples/portfolio.html" title="" tabindex="-1" aria-hidden="true"></iframe></div>
+          <h3>Portfolio</h3>
+          <p>Case studies that arrive from opposite edges, a centre-triggered about section and a contact form.</p>
+          <ul class="ex-tags"><li>slide-left/right</li><li>trigger</li><li>clip-circle</li></ul>
+        </a>
+        <a class="ex nar-span-12 nar-span-md-6" href="examples/dashboard.html" data-nar-reveal="slide-bottom">
+          <div class="ex-art ex-dashboard" aria-hidden="true"><iframe data-src="examples/dashboard.html" title="" tabindex="-1" aria-hidden="true"></iframe></div>
+          <h3>Dashboard</h3>
+          <p>KPI cards that count up, charts that wipe in and a date range that really changes the numbers.</p>
+          <ul class="ex-tags"><li>stagger</li><li>bounce-in</li><li>loop</li></ul>
+        </a>
+        <a class="ex nar-span-12 nar-span-md-6" href="examples/blog.html" data-nar-reveal="slide-bottom">
+          <div class="ex-art ex-blog" aria-hidden="true"><iframe data-src="examples/blog.html" title="" tabindex="-1" aria-hidden="true"></iframe></div>
+          <h3>Blog</h3>
+          <p>A topic filter, a post grid and a long article with sticky contents and a reading progress bar.</p>
+          <ul class="ex-tags"><li>fade</li><li>early</li><li>clip-right</li></ul>
+        </a>
+        <a class="ex nar-span-12 nar-span-md-6" href="examples/ecommerce.html" data-nar-reveal="slide-bottom">
+          <div class="ex-art ex-ecommerce" aria-hidden="true"><iframe data-src="examples/ecommerce.html" title="" tabindex="-1" aria-hidden="true"></iframe></div>
+          <h3>E-commerce</h3>
+          <p>Filter, sort, wishlist and add to cart, with bouncing product cards and a sliding sale banner.</p>
+          <ul class="ex-tags"><li>bounce-in</li><li>stagger</li><li>clip-right</li></ul>
+        </a>
+        <a class="ex nar-span-12 nar-span-md-6" href="examples/resume.html" data-nar-reveal="slide-bottom">
+          <div class="ex-art ex-resume" aria-hidden="true"><iframe data-src="examples/resume.html" title="" tabindex="-1" aria-hidden="true"></iframe></div>
+          <h3>Resume</h3>
+          <p>An online CV with filling skill bars, a sliding timeline and a print-friendly layout.</p>
+          <ul class="ex-tags"><li>clip-right</li><li>slide-right</li><li>print</li></ul>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Timing -->
+  <section class="section" id="timing" data-nav="options">
+    <div class="nar-container nar-pi-auto nar-grid nar-gap-auto feature flip">
+      <div class="copy nar-span-12 nar-span-lg-5">
+        <h2>Delay and duration</h2>
+        <p>Delay is how long to wait before starting. Duration is how long the animation runs. Both are in milliseconds, and the defaults are 0 and 800.</p>
+        <pre class="code" data-lang="html"><code>&lt;div data-nar-reveal="slide-left"
+     data-nar-reveal-delay="300"
+     data-nar-reveal-duration="800"&gt;
+  ...
+&lt;/div&gt;</code></pre>
+        <p class="legend">On the tracks, a dashed line is the wait and a solid bar is the animation.</p>
+      </div>
+      <div class="stage nar-span-12 nar-span-lg-7" data-stage>
+        <div class="stage-body">
+          <div>
+            <div class="demo sm" data-nar-reveal="slide-left" data-nar-reveal-delay="0" data-nar-reveal-duration="800">delay 0, duration 800</div>
+            <div class="track" style="--d:0;--w:800"><i></i></div>
+          </div>
+          <div>
+            <div class="demo sm" data-nar-reveal="slide-left" data-nar-reveal-delay="300" data-nar-reveal-duration="800">delay 300, duration 800</div>
+            <div class="track" style="--d:300;--w:800"><i></i></div>
+          </div>
+          <div>
+            <div class="demo sm" data-nar-reveal="slide-left" data-nar-reveal-delay="600" data-nar-reveal-duration="1200">delay 600, duration 1200</div>
+            <div class="track" style="--d:600;--w:1200"><i></i></div>
+          </div>
+          <div class="ruler" aria-hidden="true"><span>0 ms</span><span>500</span><span>1000</span><span>1500</span><span>2000</span></div>
+        </div>
+        <button class="replay" type="button"></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="distance" data-nav="options">
+    <div class="nar-container nar-pi-auto nar-grid nar-gap-auto feature">
+      <div class="copy nar-span-12 nar-span-lg-5">
+        <h2>Distance</h2>
+        <p>Slide, zoom and bounce travel 200 px by default. Set <code>data-nar-reveal-distance</code> in pixels, on an element or on a wrapper to cover everything inside it. An element's own value wins.</p>
+        <pre class="code" data-lang="html"><code>&lt;div data-nar-reveal-distance="60"&gt;
+  &lt;div data-nar-reveal="slide-left"&gt;60 px&lt;/div&gt;
+  &lt;div data-nar-reveal="slide-left"
+       data-nar-reveal-distance="240"&gt;240 px&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      </div>
+      <div class="stage nar-span-12 nar-span-lg-7" data-stage>
+        <div class="stage-body">
+          <div>
+            <div class="demo sm" data-nar-reveal="slide-left">Default, 200 px</div>
+            <div class="span" style="--px:83%"></div>
+          </div>
+          <div data-nar-reveal-distance="60">
+            <div class="demo sm" data-nar-reveal="slide-left">From the wrapper, 60 px</div>
+            <div class="span" style="--px:25%"></div>
+          </div>
+          <div data-nar-reveal-distance="60">
+            <div class="demo sm" data-nar-reveal="slide-left" data-nar-reveal-distance="240">Its own value, 240 px</div>
+            <div class="span" style="--px:100%"></div>
+          </div>
+        </div>
+        <button class="replay" type="button"></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="easing" data-nav="options">
+    <div class="nar-container nar-pi-auto nar-grid nar-gap-auto feature flip">
+      <div class="copy nar-span-12 nar-span-lg-5">
+        <h2>Easing</h2>
+        <p>Easing shapes how the speed changes over time. Use any CSS timing function: a keyword, <code>cubic-bezier()</code> or <code>steps()</code>. Invalid values are ignored. Each curve shows progress over time.</p>
+        <pre class="code" data-lang="html"><code>&lt;div data-nar-reveal="slide-left"
+     data-nar-reveal-easing="cubic-bezier(.2,.8,.2,1)"&gt;
+  ...
+&lt;/div&gt;</code></pre>
+        <p class="note">The bounce effects already have their overshoot built in, so they look best with the default easing.</p>
+      </div>
+      <div class="stage nar-span-12 nar-span-lg-7" data-stage>
+        <div class="stage-body">
+          <div class="row"><svg viewBox="-4 -4 56 56" data-curve="linear" aria-hidden="true"></svg>
+            <div class="demo sm" data-nar-reveal="slide-left" data-nar-reveal-distance="160" data-nar-reveal-duration="1400" data-nar-reveal-easing="linear">linear</div></div>
+          <div class="row"><svg viewBox="-4 -4 56 56" data-curve="ease-out" aria-hidden="true"></svg>
+            <div class="demo sm" data-nar-reveal="slide-left" data-nar-reveal-distance="160" data-nar-reveal-duration="1400" data-nar-reveal-easing="ease-out">ease-out</div></div>
+          <div class="row"><svg viewBox="-4 -4 56 56" data-curve="cubic-bezier(.2,.8,.2,1)" aria-hidden="true"></svg>
+            <div class="demo sm" data-nar-reveal="slide-left" data-nar-reveal-distance="160" data-nar-reveal-duration="1400" data-nar-reveal-easing="cubic-bezier(.2,.8,.2,1)">cubic-bezier(.2,.8,.2,1)</div></div>
+          <div class="row"><svg viewBox="-4 -4 56 56" data-curve="steps(5)" aria-hidden="true"></svg>
+            <div class="demo sm" data-nar-reveal="slide-left" data-nar-reveal-distance="160" data-nar-reveal-duration="1400" data-nar-reveal-easing="steps(5)">steps(5)</div></div>
+        </div>
+        <button class="replay" type="button"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stagger -->
+  <section class="section" id="stagger" data-nav="options">
+    <div class="nar-container nar-pi-auto nar-grid nar-gap-auto feature">
+      <div class="copy nar-span-12 nar-span-lg-5">
+        <h2>Stagger</h2>
+        <p>Put <code>data-nar-reveal-stagger</code> on a wrapper and its direct children start that many milliseconds apart. No per-item delays to write.</p>
+        <p>It staggers the elements that <strong>appear together</strong>. In a long list, each group that scrolls into view starts again from zero, so nothing waits for the whole list. An element's own delay is added on top.</p>
+        <pre class="code" data-lang="html"><code>&lt;ul data-nar-reveal-stagger="120"&gt;
+  &lt;li data-nar-reveal="slide-bottom"&gt;One&lt;/li&gt;
+  &lt;li data-nar-reveal="slide-bottom"&gt;Two&lt;/li&gt;
+  &lt;li data-nar-reveal="slide-bottom"&gt;Three&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+      </div>
+      <div class="stage nar-span-12 nar-span-lg-7" data-stage>
+        <div class="stage-body">
+          <div class="tiles nar-grid nar-gap-16" data-nar-reveal-stagger="120">
+            <div class="demo nar-span-4" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40">1</div>
+            <div class="demo nar-span-4" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40">2</div>
+            <div class="demo nar-span-4" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40">3</div>
+            <div class="demo nar-span-4" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40">4</div>
+            <div class="demo nar-span-4" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40">5</div>
+            <div class="demo nar-span-4" data-nar-reveal="slide-bottom" data-nar-reveal-distance="40">6</div>
+          </div>
+          <div aria-hidden="true">
+            <div class="track" style="--d:0;--w:800"><i></i></div>
+            <div class="track" style="--d:120;--w:800"><i></i></div>
+            <div class="track" style="--d:240;--w:800"><i></i></div>
+            <div class="track" style="--d:360;--w:800"><i></i></div>
+            <div class="track" style="--d:480;--w:800"><i></i></div>
+            <div class="track" style="--d:600;--w:800"><i></i></div>
+            <div class="ruler"><span>0 ms</span><span>500</span><span>1000</span><span>1500</span><span>2000</span></div>
+          </div>
+        </div>
+        <button class="replay" type="button"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trigger -->
+  <section class="section" id="trigger" data-nav="options">
+    <div class="nar-container nar-pi-auto nar-grid nar-gap-auto feature flip">
+      <div class="copy nar-span-12 nar-span-lg-5">
+        <h2>Trigger point</h2>
+        <p>By default an element starts as soon as it touches the screen. Set <code>data-nar-reveal-trigger</code> on an element or any wrapper to wait for it to reach a zone. The shaded band is where the element has to be.</p>
+        <pre class="code" data-lang="html"><code>&lt;section data-nar-reveal-trigger="center"&gt;
+  &lt;div data-nar-reveal="fade"&gt;...&lt;/div&gt;
+  &lt;div data-nar-reveal="fade"&gt;...&lt;/div&gt;
+&lt;/section&gt;</code></pre>
+        <p class="note">Very fast scrolling, or jumping with an anchor link, can skip the narrow bands. The element plays when you scroll back to it.</p>
+      </div>
+      <div class="stage vps nar-span-12 nar-span-lg-7 nar-grid nar-gap-16" aria-label="Trigger zones on a screen">
+        <figure class="nar-span-6 nar-span-md-3"><div class="vp"><div class="band" style="top:0;height:100%"></div></div>
+          <figcaption><b>No attribute</b>As soon as it touches the screen.</figcaption></figure>
+        <figure class="nar-span-6 nar-span-md-3"><div class="vp"><div class="band" style="top:-20%;height:140%"></div></div>
+          <figcaption><b>early</b>A little before it enters.</figcaption></figure>
+        <figure class="nar-span-6 nar-span-md-3"><div class="vp"><div class="band" style="top:35%;height:30%"></div></div>
+          <figcaption><b>center</b>In the middle band.</figcaption></figure>
+        <figure class="nar-span-6 nar-span-md-3"><div class="vp"><div class="band" style="top:45%;height:10%"></div></div>
+          <figcaption><b>late</b>In a narrow middle band.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Loop -->
+  <section class="section" id="loop" data-nav="options">
+    <div class="nar-container nar-pi-auto nar-grid nar-gap-auto feature">
+      <div class="copy nar-span-12 nar-span-lg-5">
+        <h2>Play once, or again</h2>
+        <p>An element plays once by default. Set <code>data-nar-reveal-loop</code> to a number to allow that many plays, or to <code>infinite</code>. Once an element is more than 300 px off screen it resets and can play again.</p>
+        <p>Scroll the cards out of view and back to watch the counters.</p>
+        <pre class="code" data-lang="html"><code>&lt;div data-nar-reveal="zoom-in-center"
+     data-nar-reveal-loop="2"&gt;...&lt;/div&gt;
+
+&lt;div data-nar-reveal="zoom-in-center"
+     data-nar-reveal-loop="infinite"&gt;...&lt;/div&gt;</code></pre>
+      </div>
+      <div class="stage nar-span-12 nar-span-lg-7">
+        <div class="stage-body">
+          <div class="counts nar-grid nar-gap-16">
+            <div class="demo nar-span-12 nar-span-sm-4" data-nar-reveal="zoom-in-center" data-play-count>loop 1<small>the default</small><span class="n">0</span><small>plays</small></div>
+            <div class="demo nar-span-12 nar-span-sm-4" data-nar-reveal="zoom-in-center" data-nar-reveal-loop="2" data-nar-reveal-delay="150" data-play-count>loop 2<small>twice, then stays</small><span class="n">0</span><small>plays</small></div>
+            <div class="demo nar-span-12 nar-span-sm-4" data-nar-reveal="zoom-in-center" data-nar-reveal-loop="infinite" data-nar-reveal-delay="300" data-play-count>infinite<small>every time</small><span class="n">0</span><small>plays</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dynamic content -->
+  <section class="section" id="dynamic" data-nav="options">
+    <div class="nar-container nar-pi-auto nar-grid nar-gap-auto feature flip">
+      <div class="copy nar-span-12 nar-span-lg-5">
+        <h2>Content added later</h2>
+        <p>Elements added after the page loads aren't picked up on their own. Call <code>window.narReveal()</code> after adding them. Pass a container to limit the work: the container itself counts too, and elements that are already set up are skipped.</p>
+        <pre class="code" data-lang="js"><code>const card = document.createElement('div');
+card.dataset.narReveal = 'slide-bottom';
+list.append(card);
+
+window.narReveal(list);</code></pre>
+      </div>
+      <div class="stage nar-span-12 nar-span-lg-7" data-stage>
+        <div class="stage-body">
+          <button class="btn" type="button" id="add-card">Add a card</button>
+          <div class="stack" id="stack"></div>
+        </div>
+        <button class="replay" type="button"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Safety -->
+  <section class="section" id="safe" data-nav="safe">
+    <div class="nar-container nar-pi-auto nar-grid nar-gap-auto feature">
+      <div class="copy nar-span-12 nar-span-lg-5">
+        <h2>Safe by default</h2>
+        <p>Animations should never cost you content. These cases are handled without any setup.</p>
+      </div>
+      <div class="rows nar-span-12 nar-span-lg-7">
+        <div><h3>JavaScript is off, blocked or fails</h3><p>Elements are only hidden once the script reports it is ready. Until then, and if anything goes wrong, everything is shown.</p></div>
+        <div><h3>Reduced motion</h3><p>When the visitor asks for reduced motion, elements still appear as they are reached, without moving.</p></div>
+        <div><h3>Printing</h3><p>Every element is shown on paper.</p></div>
+        <div><h3>Browsers without IntersectionObserver</h3><p>The content appears without animation.</p></div>
+        <div><h3>Nothing left behind</h3><p>After an animation ends the element carries no leftover transform, so your own hover, transform and position rules keep working.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Customize -->
+  <section class="section" id="customize" data-nav="reference">
+    <div class="nar-container nar-pi-auto nar-grid nar-gap-auto feature flip">
+      <div class="copy nar-span-12 nar-span-lg-5">
+        <h2>Set defaults in CSS</h2>
+        <p>Change the defaults for the whole page, or for a wrapper. An attribute on an element or wrapper always wins over these.</p>
+        <p>Anything else is plain CSS. To repeat an animation forever, for example, add <code>animation-iteration-count: infinite</code>.</p>
+      </div>
+      <div class="nar-span-12 nar-span-lg-7">
+        <pre class="code" data-lang="css"><code>:root {
+  --nar-reveal-distance: 120px;
+  --nar-reveal-easing: cubic-bezier(.2, .8, .2, 1);
+}</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reference -->
+  <section class="section" id="reference" data-nav="reference">
+    <div class="nar-container nar-pi-auto">
+      <div class="copy">
+        <h2 id="ref-title">Reference</h2>
+        <p>Every attribute in one place. Invalid values are ignored and the default is used.</p>
+      </div>
+      <div class="table-wrap" role="region" aria-labelledby="ref-title" tabindex="0">
+        <table>
+          <caption class="sr-only">All Narleaf Reveal attributes with their values, defaults and where they can be placed</caption>
+          <thead><tr><th scope="col">Attribute</th><th scope="col">Value</th><th scope="col">Default</th><th scope="col">Where</th></tr></thead>
+          <tbody>
+            <tr><td><code>data-nar-reveal</code></td><td>One of the 26 effects. Empty or unknown fades in.</td><td>fade</td><td>Element</td></tr>
+            <tr><td><code>data-nar-reveal-delay</code></td><td>Milliseconds</td><td>0</td><td>Element</td></tr>
+            <tr><td><code>data-nar-reveal-duration</code></td><td>Milliseconds</td><td>800</td><td>Element</td></tr>
+            <tr><td><code>data-nar-reveal-distance</code></td><td>Pixels</td><td>200</td><td>Element or wrapper</td></tr>
+            <tr><td><code>data-nar-reveal-easing</code></td><td>Any CSS timing function</td><td>ease</td><td>Element or wrapper</td></tr>
+            <tr><td><code>data-nar-reveal-stagger</code></td><td>Milliseconds between children</td><td>None</td><td>Wrapper, for its direct children</td></tr>
+            <tr><td><code>data-nar-reveal-loop</code></td><td>A number, or infinite</td><td>1</td><td>Element</td></tr>
+            <tr><td><code>data-nar-reveal-trigger</code></td><td>early, center or late</td><td>When it touches the screen</td><td>Element or wrapper</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="good">
+        <li>Slide, zoom and bounce start away from their final position. Add <code>overflow-x: clip</code> to a wrapper such as <code>main</code> so they don't cause a brief horizontal scrollbar. This page does.</li>
+        <li>The script sets <code>data-nar-revealed</code> while an element is revealed. Use it in your own CSS if you like, but don't set it yourself.</li>
+        <li>Developed in Chromium and checked in Firefox. Reports from Safari are welcome.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="nar-container nar-pi-auto">
+    <div class="nar-grid nar-gap-auto">
+      <div class="nar-span-12 nar-span-lg-6">
+        <a class="brand" href="#top">Narleaf Reveal</a>
+        <p>Tiny scroll-triggered reveal animations. One attribute, about 2.2 KB gzipped, and your content never stays hidden.</p>
+      </div>
+      <nav class="fnav nar-span-6 nar-span-lg-2" aria-labelledby="f-docs"><h2 id="f-docs">Docs</h2><ul><li><a href="#start">Quick start</a></li><li><a href="#effects">Effects</a></li><li><a href="#timing">Options</a></li><li><a href="#reference">Reference</a></li></ul></nav>
+      <nav class="fnav nar-span-6 nar-span-lg-2" aria-labelledby="f-ex"><h2 id="f-ex">Examples</h2><ul><li><a href="examples/landing.html">Landing</a></li><li><a href="examples/portfolio.html">Portfolio</a></li><li><a href="examples/dashboard.html">Dashboard</a></li><li><a href="examples/blog.html">Blog</a></li><li><a href="examples/ecommerce.html">E-commerce</a></li><li><a href="examples/resume.html">Resume</a></li></ul></nav>
+      <nav class="fnav nar-span-6 nar-span-lg-2" aria-labelledby="f-proj"><h2 id="f-proj">Project</h2><ul><li><a href="https://github.com/withmehmet/narleaf-reveal" target="_blank" rel="noopener noreferrer">Source on GitHub</a></li><li><a href="https://github.com/withmehmet/narleaf-layout" target="_blank" rel="noopener noreferrer">Narleaf Layout</a></li><li><a href="https://github.com/withmehmet/narleaf-reveal/issues" target="_blank" rel="noopener noreferrer">Report an issue</a></li></ul></nav>
+    </div>
+    <div class="legal"><span>MIT license. Free to use, copy and change.</span><span>Built with Narleaf Reveal and Narleaf Layout.</span></div>
+  </div>
+</footer>
+
+<script>
+/* Demo page behavior. The library itself is only narleaf-reveal.js. */
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+  /* ---- syntax highlighting + copy buttons ---- */
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const RE = {
+    html: /<!--[\s\S]*?-->|<\/?[\w-]+|[\w-]+(?==")|"[^"]*"/g,
+    css: /\/\*[\s\S]*?\*\/|--[\w-]+|[\w-]+(?=\s*:)|"[^"]*"/g,
+    js: /\/\/.*|'[^']*'|"[^"]*"|\b(?:const|window)\b|\b[\w.]+(?=\()/g,
+  };
+  const kind = (t, lang) => {
+    if (lang === 'html') return t.startsWith('<!--') ? 'c' : t[0] === '<' ? 't' : t[0] === '"' ? 's' : 'a';
+    if (lang === 'css') return t.startsWith('/*') ? 'c' : t.startsWith('--') ? 'v' : t[0] === '"' ? 's' : 'k';
+    return t.startsWith('//') ? 'c' : /^['"]/.test(t) ? 's' : /^(const|window)$/.test(t) ? 'k' : 'f';
+  };
+  const hl = (src, lang) => {
+    let out = '', last = 0;
+    src.replace(RE[lang], (m, i) => {
+      out += esc(src.slice(last, i)) + `<span class="tk-${kind(m, lang)}">${esc(m)}</span>`;
+      last = i + m.length;
+      return m;
+    });
+    return out + esc(src.slice(last));
+  };
+  const LANG = { html: 'HTML', css: 'CSS', js: 'JavaScript' };
+  $$('pre.code').forEach((pre) => {
+    const code = $('code', pre);
+    if (code.id !== 'fx-code') code.innerHTML = hl(code.textContent, pre.dataset.lang);
+    const box = document.createElement('div');
+    box.className = 'codebox';
+    const bar = document.createElement('div');
+    bar.className = 'codebar';
+    bar.innerHTML = `<span>${LANG[pre.dataset.lang] || ''}</span>`;
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy-btn'; btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy ' + (LANG[pre.dataset.lang] || '') + ' code');
+    pre.tabIndex = 0; pre.setAttribute('aria-label', (LANG[pre.dataset.lang] || 'Code') + ' example');
+    btn.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(code.textContent); btn.textContent = 'Copied'; btn.classList.add('done'); }
+      catch { btn.textContent = 'Press Ctrl+C'; }
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('done'); }, 1500);
+    });
+    bar.append(btn);
+    pre.replaceWith(box);
+    box.append(bar, pre);
+  });
+
+  /* ---- hero: one-click copy of the attribute ---- */
+  $$('[data-copy]').forEach((b) => b.addEventListener('click', async () => {
+    const text = new DOMParser().parseFromString(b.dataset.copy, 'text/html').documentElement.textContent;
+    try { await navigator.clipboard.writeText(text); b.textContent = 'Copied'; b.classList.add('done'); }
+    catch { b.textContent = 'Press Ctrl+C'; }
+    setTimeout(() => { b.textContent = 'Copy'; b.classList.remove('done'); }, 1500);
+  }));
+
+  /* ---- easing curves, drawn from each row's own easing value ---- */
+  const KEY = { linear: [0, 0, 1, 1], ease: [.25, .1, .25, 1], 'ease-in': [.42, 0, 1, 1], 'ease-out': [0, 0, .58, 1], 'ease-in-out': [.42, 0, .58, 1] };
+  const curve = (v) => {
+    const S = 48;
+    const b = v.startsWith('cubic-bezier') ? v.match(/-?\d*\.?\d+/g).map(Number) : KEY[v];
+    if (b) return `M0 ${S} C${b[0] * S} ${S - b[1] * S} ${b[2] * S} ${S - b[3] * S} ${S} 0`;
+    const n = +v.match(/\d+/)[0];
+    let p = `M0 ${S}`;
+    for (let i = 1; i <= n; i++) p += ` H${(S * i) / n} V${S - (S * i) / n}`;
+    return p;
+  };
+  const drawCurves = (root) => $$('[data-curve]', root).forEach((svg) => {
+    svg.innerHTML = `<path class="axis" d="M0 0V48H48"/><path d="${curve(svg.dataset.curve)}"/>`;
+  });
+
+  /* ---- stages: replay recreates the demo content and asks the library to set it up ---- */
+  const REPLAY = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8a5.5 5.5 0 1 0 1.8-4.1"/><path d="M2.5 2.5v3h3"/></svg>Replay';
+  $$('[data-stage]').forEach((stage) => {
+    const body = $('.stage-body', stage);
+    const btn = $('.replay', stage);
+    body._tpl = body.innerHTML;
+    btn.innerHTML = REPLAY;
+    btn.setAttribute('aria-label', 'Replay this animation');
+    btn.addEventListener('click', () => {
+      body.innerHTML = body._tpl;
+      drawCurves(body);
+      window.narReveal?.(body);
+    });
+  });
+  drawCurves(document);
+
+  /* ---- effect explorer ---- */
+  const FAMILIES = [
+    ['Fade', ['fade']],
+    ['Slide', ['slide-left', 'slide-right', 'slide-top', 'slide-bottom']],
+    ['Zoom', ['zoom-in-center', 'zoom-in-left', 'zoom-in-right', 'zoom-in-top', 'zoom-in-bottom']],
+    ['Bounce', ['bounce-in-center', 'bounce-in-left', 'bounce-in-right', 'bounce-in-top', 'bounce-in-bottom']],
+    ['Flip', ['flip-left', 'flip-right', 'flip-up', 'flip-down']],
+    ['Rotate', ['rotate-left', 'rotate-right']],
+    ['Clip', ['clip-up', 'clip-down', 'clip-left', 'clip-right', 'clip-circle']],
+  ];
+  const describe = (v) => {
+    const s = v.split('-').pop();
+    if (v === 'fade') return 'Fades in without moving.';
+    if (v.startsWith('slide')) return `Slides in from the ${s}.`;
+    if (v.startsWith('zoom')) return s === 'center' ? 'Grows in place.' : `Grows while sliding in from the ${s}.`;
+    if (v.startsWith('bounce')) return s === 'center' ? 'Pops in, overshoots, then settles.' : `Bounces in from the ${s}, overshoots, then settles.`;
+    if (v.startsWith('flip')) return (s === 'left' || s === 'right') ? 'Flips in around the vertical axis.' : 'Flips in around the horizontal axis.';
+    if (v.startsWith('rotate')) return `Rotates in from a quarter turn to the ${s}.`;
+    return { up: 'Wipes in upward.', down: 'Wipes in downward.', left: 'Wipes in from the left.', right: 'Wipes in from the right.', circle: 'Opens from the center as a circle.' }[s];
+  };
+  const chips = $('#fx-chips'), fxBody = $('#fx-body');
+  FAMILIES.forEach(([name, values]) => {
+    const row = document.createElement('div');
+    row.className = 'fam';
+    row.innerHTML = `<span class="fam-name">${name}</span><div class="seg"></div>`;
+    values.forEach((v) => {
+      const word = v === 'fade' ? 'fade' : v.replace(/^[a-z]+-(in-)?/, '');
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'pill'; b.dataset.v = v; b.title = v;
+      b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', 'false'); b.tabIndex = -1;
+      b.textContent = word;
+      $('.seg', row).append(b);
+    });
+    chips.append(row);
+  });
+  const pills = $$('.pill', chips);
+  const show = (v, play = true) => {
+    fxBody._tpl = `<div class="demo big" data-nar-reveal="${v}">${v}</div>`;
+    fxBody.innerHTML = fxBody._tpl;
+    $('#fx-code').innerHTML = hl(`<div data-nar-reveal="${v}">...</div>`, 'html');
+    $('#fx-desc').textContent = describe(v);
+    pills.forEach((p) => {
+      const on = p.dataset.v === v;
+      p.setAttribute('aria-checked', String(on));
+      p.tabIndex = on ? 0 : -1;
+    });
+    if (play) window.narReveal?.(fxBody);
+  };
+  chips.addEventListener('click', (e) => { const b = e.target.closest('.pill'); if (b) show(b.dataset.v); });
+  // arrow keys move through the effects like a radio group
+  chips.addEventListener('keydown', (e) => {
+    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (!step) return;
+    e.preventDefault();
+    const i = pills.indexOf(document.activeElement);
+    const next = pills[(i + step + pills.length) % pills.length];
+    next.focus();
+    show(next.dataset.v);
+  });
+  show('slide-left', false);
+
+  /* ---- loop counters ---- */
+  document.addEventListener('animationstart', (e) => {
+    const el = e.target;
+    if (!el.matches?.('[data-play-count]')) return;
+    el._n = (el._n || 0) + 1;
+    $('.n', el).textContent = el._n;
+  });
+
+  /* ---- content added later ---- */
+  let cards = 0;
+  // Replay recreates the stage content, so listen on the stage and look the stack up each time
+  $('#dynamic .stage').addEventListener('click', (e) => {
+    if (!e.target.closest('#add-card')) return;
+    const stack = $('#stack');
+    if (!stack.children.length) cards = 0;
+    const card = document.createElement('div');
+    card.className = 'demo sm';
+    card.dataset.narReveal = 'slide-bottom';
+    card.dataset.narRevealDistance = '40';
+    card.dataset.narRevealDuration = '700';
+    card.textContent = `Card ${++cards}, added by script`;
+    if (stack.children.length >= 3) stack.firstElementChild.remove();
+    stack.append(card);
+    window.narReveal?.(stack);
+  });
+
+  /* ---- example cards: show the real page, loaded when its card scrolls into view ---- */
+  $$('.ex-art iframe').forEach((frame) => {
+    const art = frame.parentElement;
+    const fit = () => { frame.style.transform = `scale(${art.clientWidth / 1280})`; };
+    new ResizeObserver(fit).observe(art);
+    fit();
+    const watch = new IntersectionObserver((entries) => {
+      if (!entries.some((en) => en.isIntersecting)) return;
+      watch.disconnect();
+      frame.addEventListener('load', () => frame.classList.add('on'), { once: true });
+      frame.src = frame.dataset.src;
+    }, { threshold: 0.3 });
+    watch.observe(art);
+  });
+
+  /* ---- mobile menu ---- */
+  const menuBtn = $('.menu-btn'), siteNav = $('#site-nav');
+  const setMenu = (open) => { menuBtn.setAttribute('aria-expanded', String(open)); siteNav.classList.toggle('is-open', open); };
+  menuBtn.addEventListener('click', () => setMenu(menuBtn.getAttribute('aria-expanded') !== 'true'));
+  siteNav.addEventListener('click', (e) => { if (e.target.closest('a')) setMenu(false); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
+
+  /* ---- current section in the header ----
+     The section whose top has passed the upper third wins; at the very bottom the last one wins,
+     so "Reference" can still be reached on a short final section. */
+  const links = $$('.nav a');
+  const sections = $$('[data-nav]');
+  let ticking = false;
+  const mark = () => {
+    ticking = false;
+    const atEnd = innerHeight + scrollY >= document.documentElement.scrollHeight - 4;
+    let name = sections[0].dataset.nav;
+    if (atEnd) name = sections[sections.length - 1].dataset.nav;
+    else for (const sec of sections) if (sec.getBoundingClientRect().top <= innerHeight * 0.35) name = sec.dataset.nav;
+    links.forEach((a) => a.setAttribute('aria-current', String((a.dataset.for || a.getAttribute('href').slice(1)) === name)));
+  };
+  addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(mark); } }, { passive: true });
+  addEventListener('resize', mark);
+  mark();
+})();
+</script>
+</body>
+</html>
